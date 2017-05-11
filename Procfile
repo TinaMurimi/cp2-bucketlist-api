@@ -1,0 +1,1 @@
+gunicorn bucketlist:app

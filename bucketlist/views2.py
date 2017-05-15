@@ -8,16 +8,14 @@ from flask import Flask
 from flask import redirect, url_for, render_template
 from flask_login import login_required, current_user
 
-# from bucketlist.__init__ import app, db
+from .. import app
 
 from forms import RegistrationForm, EmailForm, PasswordForm
 from models import db, Role, User, Bucketlist
-from utils.security import ts, send_email
-
-from bucketlist.config import configure_app
+# from utils.security import ts, send_email
 
 
-@app.route('/accounts/register', methods=['GET', 'POST'])
+@bucketlist.app.route('/accounts/register', methods=['GET', 'POST'])
 def register():
     """The application needs to register users before they can log in"""
 

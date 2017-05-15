@@ -1,5 +1,5 @@
 from itsdangerous import URLSafeTimedSerializer
 
-from . import app
+from bucketlist import app
 
 ts = URLSafeTimedSerializer(app.config["SECRET_KEY"])

@@ -1,1 +1,1 @@
-gunicorn bucketlist:app
+web: gunicorn bucketlist:app

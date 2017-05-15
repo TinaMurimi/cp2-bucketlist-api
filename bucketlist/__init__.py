@@ -10,31 +10,32 @@ from flask_sqlalchemy import SQLAlchemy
 
 from flask_wtf.csrf import CSRFProtect
 
+from termcolor import colored
+
 from bucketlist.config import configuration
 # from bucketlist.models import User, Role
 import bucketlist.models
 
-# When instance_relative_config=True if we create our app with the Flask() call,
+# When instance_relative_config=True if we create our app with the Flask() call
 # app.config.from_pyfile() will load the specified file from the
 # instance/directory
 
 app = Flask(__name__, instance_relative_config=True)
 # db = SQLAlchemy(app)
 
-def ConfigureEnv(configs):
+
+def ConfigureEnv(config_name):
     # Load the default configuration
-    app.config.from_object(configuration[configs])
-# Load the default configuration
-# app.config.from_object(config.configuration[default])
-# app.config.from_object('config.DevelopmentConfig')
-ConfigureEnv(configs="default")
+    app.config.from_object(configuration[config_name])
+
+ConfigureEnv(config_name="default")
 
 # Check if DB url is specified
 if app.config['SQLALCHEMY_DATABASE_URI'] is None:
     print ("\nNeed database config\n")
     sys.exit(1)
 else:
-    print ("\nDatabase used:--->", app.config['SQLALCHEMY_DATABASE_URI'], "\n")
+    print (colored("\nDatabase used:--->", "cyan"), app.config['SQLALCHEMY_DATABASE_URI'], "\n")
 
 # Load the configuration from the instance folder: instance/config.py
 # app.config.from_pyfile('config.py', silent=True)
@@ -56,7 +57,7 @@ bcyrpt = Bcrypt(app)
 
 # Flask login
 login_manager = LoginManager()
-login_manager.setup_app(app)
+login_manager.init_app(app)
 # login_manager.init_app(app)
 
 # View to be used for login

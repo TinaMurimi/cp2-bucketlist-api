@@ -5,22 +5,22 @@
 
 import os
 
-
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+from flask_restful import Api
 
-# from mom.client import SQLClient
-# from Smartfocus.restclient import RESTClient
+from bucketlist.app import app
+from bucketlist.app.models import db
+from bucketlist.resources.user_resource import UserRegistrationAPI, SingleUserAPI
 
-# from bucketlist.models import db
-from bucketlist.models import db
-from bucketlist import app
 
-# app.config.from_object("config.testing")
 migrate = Migrate(app, db)
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
+
+# api = Api(app)
+# api.add_resource(UserRegistrationAPI, '/bucketlist_api/v1.0/auth/user', endpoint='register')
 
 if __name__ == '__main__':
     manager.run()

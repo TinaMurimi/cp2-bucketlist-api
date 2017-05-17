@@ -2,13 +2,18 @@
 # This may be split into several modules in the same way as views.py
 
 # datetime.fromtimestamp(time.time())
+
+import jwt
+
 from datetime import date
-
 from flask_sqlalchemy import SQLAlchemy
+from itsdangerous import (TimedJSONWebSignatureSerializer
+                          as Serializer, BadSignature, SignatureExpired)
 
-# from bucketlist import db
 
 db = SQLAlchemy()
+auth = HTTPBasicAuth()
+bcrypt = Bcrypt()
 
 roles_users = db.Table(
     'roles_user',
@@ -38,8 +43,8 @@ class User(db.Model):
 
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
-    email = db.Column(db.String(30), unique=True, nullable=False)
-    password = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     authenticated = db.Column(db.Boolean, nullable=False, default=False)
     active = db.Column(db.Boolean, nullable=False, default=False)
     roles = db.Column(db.String(5), nullable=False)
@@ -48,9 +53,11 @@ class User(db.Model):
     def __init__(self, username, email, password, roles):
         self.username = username
         self.email = email
-        self.password = password
-        self.authenticated = authenticated
-        self.active = active
+        self.password = bcrypt.generate_password_hash(
+            password, app.config.get('BCRYPT_LEVEL')
+            ).decode()
+        self.authenticated = False
+        self.active = False
         self.roles = roles
 
     def __repr__(self):
@@ -71,6 +78,66 @@ class User(db.Model):
     def is_anonymous(self):
         """False, as anonymous users aren't supported"""
         return False
+
+    @auth.verify_password
+    def verify_password(password):
+        if bcrypt.check_password_hash(self.password, password):
+            return True
+
+        return False
+
+    def generate_auth_token(self, expiration=60 * 60):
+        s = Serializer(
+            secret_key=app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'user_id': self.user_id})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(secret_key=app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            # valid token, but expired
+            return None
+        except BadSignature:
+            # invalid token
+            return None
+        user = User.query.get(data['user_id'])
+        return user
+
+    def encode_auth_token(self, user_id):
+        """
+        Generates the Auth Token
+        :return: string
+        """
+        try:
+            payload = {
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=5),
+                'iat': datetime.datetime.utcnow(),
+                'sub': user_id
+            }
+            return jwt.encode(
+                payload,
+                app.config.get('SECRET_KEY'),
+                algorithm='HS256'
+            )
+        except Exception as e:
+            return e
+
+    @staticmethod
+    def decode_auth_token(auth_token):
+        """
+        Decodes the auth token
+        :param auth_token:
+        :return: integer|string
+        """
+        try:
+            payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'))
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            return 'Signature expired. Please log in again.'
+        except jwt.InvalidTokenError:
+            return 'Invalid token. Please log in again.'
 
 
 class Bucketlist(db.Model):
@@ -105,9 +172,9 @@ class Bucketlist(db.Model):
         return self.is_completed
 
 
-class list_Item(db.Model):
+class Bucketlist_Item(db.Model):
 
-    __tablename__ = 'list_Item'
+    __tablename__ = 'Bucketlist_Item'
 
     item_id = db.Column(db.Integer, primary_key=True)
     list_id = db.Column(db.Integer, db.ForeignKey('Bucketlist.list_id'))

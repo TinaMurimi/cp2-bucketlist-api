@@ -17,7 +17,6 @@ class Config(object):
 
     # Configuration for the Flask-Bcrypt extension to hash user passwords
     BCRYPT_LEVEL = 12
-    # BCRYPT_LOG_ROUNDS = 12
 
     # SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     # export DATABASE_URL="postgresql://postgres@localhost/bucketlist"
@@ -32,6 +31,8 @@ class Config(object):
     SQLALCHEMY_MIGRATE_REPO = os.path.join(BASE_DIR, 'db_repository')
 
     MAIL_FROM_EMAIL = "someone@example.com"
+
+    SECRET_KEY = 'hsfjdkw930qeddncsmd93847fuwie2903fh3039f3'
 
 
 class ProductionConfig(Config):

@@ -2,25 +2,31 @@ import unittest
 import os
 import json
 
+# import unittest
+# import flaskapi
+# import requests
+# import json
+
 from flask.testing import FlaskClient
 
 from bucketlist.app import ConfigureApp
-from bucketlist.app.models import db
+from bucketlist.app.models import auth, db, User, Bucketlist_Item
 
 
-class BucketlistTest(unittest.TestCase):
+class UserTestCase(unittest.TestCase):
     def setUp(self):
 
         self.app = ConfigureApp(config_name="testing")
+        db.init_app(self.app)
 
         # Create a test client
         self.client = self.app.test_client
 
-        # # Propagate the exceptions to the test client
+        # Propagate the exceptions to the test client
         # self.client.testing = True
 
-        self.user = {'username': 'Tina',
-                     'email': 'tina.murimi@andela.com',
+        self.user = {'username': 'Lena',
+                     'email': 'lena@andela.com',
                      'password': 'sfnbsdfiruio3r',
                      }
         self.bucketlist = {'list_name': 'Go paragliding in Iten',
@@ -28,22 +34,26 @@ class BucketlistTest(unittest.TestCase):
                            }
         # Bind the app to the current context
         with self.app.app_context():
-            db.init_app(self.app)
+            # db.init_app(self.app)
             db.create_all()
 
     def tearDown(self):
-        pass
-        # db.session.remove()
-        # db.drop_all()
+        with self.app.app_context():
+            db.session.remove()
+            db.drop_all()
 
     def test_user_creation(self):
         """Test API can create a user (POST request)"""
         response = self.client().post('/bucketlist_api/v1.0/auth/user', data=self.user)
-        # self.assertEqual(response.status_code, 201)
-        self.assertIn('User registered successfully', str(response.data))
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('New user registered successfully', str(response.data))
 
     # def test_bucketlist_creation(self):
     #     """Test API can create a bucketlist (POST request)"""
     #     result = self.client().post('/bucketlist/', data=self.bucketlist)
     #     self.assertEqual(result.status_code, 201)
     #     self.assertIn('Go paragliding in Iten', str(result.data))
+
+    # def tearDown(self):
+    #         db.session.remove()
+    #         db.drop_all()

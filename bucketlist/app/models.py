@@ -6,6 +6,8 @@
 import jwt
 
 from datetime import date
+from flask_bcrypt import Bcrypt
+from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 from flask_sqlalchemy import SQLAlchemy
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
@@ -47,18 +49,25 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     authenticated = db.Column(db.Boolean, nullable=False, default=False)
     active = db.Column(db.Boolean, nullable=False, default=False)
-    roles = db.Column(db.String(5), nullable=False)
+    role = db.Column(db.String(5), nullable=False, default='User')
     created_on = db.Column(db.DateTime, default=date.today().isoformat())
 
-    def __init__(self, username, email, password, roles):
+    # bucketlists = db.relationship('Bucketlist', backref=db.backref(
+    #     'bucketlist', cascade='delete-orphan', uselist=False, single_parent=True),
+    #     lazy='joined',
+    #     primaryjoin='Bucketlist.created_by==User.user_id')
+
+    def __init__(self, username, email, password):
         self.username = username
         self.email = email
         self.password = bcrypt.generate_password_hash(
-            password, app.config.get('BCRYPT_LEVEL')
-            ).decode()
+            password.encode('utf8'), 12).decode('utf8')
         self.authenticated = False
         self.active = False
-        self.roles = roles
+
+    # pwhash = bcrypt.hashpw(pw.encode('utf8'), bcrypt.gensalt())
+    # self.password_hash = pwhash.decode('utf8') # decode the hash to prevent
+    # is encoded twice
 
     def __repr__(self):
         return '<User %r>' % (self.username)
@@ -79,17 +88,17 @@ class User(db.Model):
         """False, as anonymous users aren't supported"""
         return False
 
+    def set_password(self, password):
+        pwhash = bcrypt.hashpw(pw.encode('utf8'), bcrypt.gensalt())
+        self.password = pwhash.decode('utf8')
+        return self.password_hash
+
     @auth.verify_password
-    def verify_password(password):
+    def verify_password(self, password):
         if bcrypt.check_password_hash(self.password, password):
             return True
 
         return False
-
-    def generate_auth_token(self, expiration=60 * 60):
-        s = Serializer(
-            secret_key=app.config['SECRET_KEY'], expires_in=expiration)
-        return s.dumps({'user_id': self.user_id})
 
     @staticmethod
     def verify_auth_token(token):
@@ -145,16 +154,26 @@ class Bucketlist(db.Model):
     __tablename__ = 'Bucketlist'
 
     list_id = db.Column(db.Integer, primary_key=True)
-    list_name = db.Column(db.String(20), unique=True, nullable=False)
+    list_name = db.Column(db.String(20), nullable=False)
+    description = db.Column(db.String(100), nullable=True)
     is_completed = db.Column(db.Boolean(), nullable=False, default=False)
     created_on = db.Column(db.DateTime, default=date.today().isoformat())
     date_modified = db.Column(db.DateTime, default=date.today().isoformat())
-    created_by = db.Column(db.Integer, db.ForeignKey('User.user_id'))
+    # created_by = db.Column(db.Integer, db.ForeignKey(
+    #     'User.user_id', ondelete='CASCADE'))
 
-    def __init__(self, list_name, created_by):
+    created_by = db.Column(db.Integer, db.ForeignKey(
+        'User.user_id'), nullable=False)
+
+    # items = db.relationship('Bucketlist_Item', backref=db.backref(
+    #     'item', cascade='delete-orphan', uselist=False, single_parent=True),
+    #     lazy='joined',
+    #     primaryjoin='Bucketlist_Item.list_id==Bucketlist.list_id')
+
+    def __init__(self, list_name, description, created_by):
         self.list_name = list_name
+        self.description = description
         self.created_by = created_by
-
         self.is_completed = False
         self.created_on = date.today().isoformat()
         self.date_modified = date.today().isoformat()
@@ -177,16 +196,17 @@ class Bucketlist_Item(db.Model):
     __tablename__ = 'Bucketlist_Item'
 
     item_id = db.Column(db.Integer, primary_key=True)
-    list_id = db.Column(db.Integer, db.ForeignKey('Bucketlist.list_id'))
-    item_name = db.Column(db.String(20), unique=True, nullable=False)
+    list_id = db.Column(db.Integer, db.ForeignKey('Bucketlist.list_id'), nullable=False)
+    item_name = db.Column(db.String(20), nullable=False)
+    description = db.Column(db.String(100), nullable=True)
     is_completed = db.Column(db.Boolean(), nullable=False, default=False)
-    created_on = db.Column(db.DateTime, default=date.today().isoformat())
+    created_on = db.Column(db.DateTime, nullable=False, default=date.today().isoformat())
     date_modified = db.Column(db.DateTime, default=date.today().isoformat())
 
-    def __init__(self, item_name, list_id):
+    def __init__(self, item_name, description, list_id):
         self.item_name = item_name
         self.list_id = list_id
-
+        self.description = description
         self.is_completed = False
         self.created_on = date.today().isoformat()
         self.date_modified = date.today().isoformat()

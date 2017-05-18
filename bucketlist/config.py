@@ -21,7 +21,7 @@ class Config(object):
     # SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     # export DATABASE_URL="postgresql://postgres@localhost/bucketlist"
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/bucketlist'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/bucketlist_test'
     # Sdds significant overhead and will be disabled by default in the future
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -34,6 +34,8 @@ class Config(object):
 
     SECRET_KEY = 'hsfjdkw930qeddncsmd93847fuwie2903fh3039f3'
 
+    RESULTS_PER_PAGE = 20
+    JSON_SORT_KEYS = False
 
 class ProductionConfig(Config):
     DEBUG = False
@@ -46,6 +48,7 @@ class StagingConfig(Config):
 
 
 class DevelopmentConfig(Config):
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/bucketlist'
     DEVELOPMENT = True
     DEBUG = True
     SQLALCHEMY_ECHO = True

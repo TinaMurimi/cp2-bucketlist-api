@@ -11,28 +11,31 @@ from flask_sqlalchemy import SQLAlchemy
 
 from flask_wtf.csrf import CSRFProtect
 
-from termcolor import colored
-
 from ..config import configuration
 from .models import db, User, Role
+
+from bucketlist.resources.user_resource import (UserRegistrationAPI,
+                                                SingleUserAPI,
+                                                UserLoginAPI,
+                                                UserLogoutAPI,
+                                                )
+from bucketlist.resources.bucketlist_resource import (
+    BucketlistAPI,
+    BucketlistItemAPI,
+    SingleBucketlistAPI,
+    SingleBucketlistItemAPI,
+)
 
 # When instance_relative_config=True if we create our app with the Flask() call
 # app.config.from_pyfile() will load the specified file from the
 # instance/directory
+
 
 def ConfigureApp(config_name):
     app = Flask(__name__, instance_relative_config=True)
 
     # Load the default configuration
     app.config.from_object(configuration[config_name])
-
-    # Check if DB url is specified
-    if app.config['SQLALCHEMY_DATABASE_URI'] is None:
-        print ("\nNeed database config\n")
-        sys.exit(1)
-    else:
-        print (colored("\nDatabase used:--->", "cyan"), app.config['SQLALCHEMY_DATABASE_URI'], "\n")
-        # print (colored("\nSecret Key:--->", "magenta"), app.config['SECRET_KEY'], "\n")
 
     # Load the configuration from the instance folder: instance/config.py
     # app.config.from_pyfile('config.py', silent=True)
@@ -52,24 +55,52 @@ def ConfigureApp(config_name):
     # Create an instance of Bcyrpt
     # bcrypt = Bcrypt(app)
 
-    # Flask login
-    login_manager = LoginManager()
-    login_manager.init_app(app)
+    # # Flask login
+    # login_manager = LoginManager()
     # login_manager.init_app(app)
+    # # login_manager.init_app(app)
 
-    # View to be used for login
-    login_manager.login_view = "login"
+    # # View to be used for login
+    # login_manager.login_view = "login"
 
     # Flask-WTF csrf protection
     # csrf = CSRFProtect()
     # csrf.init_app(app)
 
+    db.init_app(app)
+
+    # Register resources
+    api = Api(app)
+    api.add_resource(UserRegistrationAPI,
+                     '/bucketlist_api/v1.0/auth/register',
+                     endpoint='register_user')
+    api.add_resource(SingleUserAPI,
+                     '/bucketlist_api/v1.0/user/<int:id>',
+                     endpoint='single_user')
+    api.add_resource(UserLoginAPI,
+                     '/bucketlist_api/v1.0/auth/login',
+                     endpoint='login')
+    api.add_resource(UserLogoutAPI,
+                     '/bucketlist_api/v1.0/auth/logout',
+                     endpoint='logout')
+
+    api.add_resource(BucketlistAPI,
+                     '/bucketlist_api/v1.0/bucketlists',
+                     endpoint='bucketlist')
+    api.add_resource(SingleBucketlistAPI,
+                     '/bucketlist_api/v1.0/bucketlists/<int:id>',
+                     endpoint='single_bucketlist')
+    api.add_resource(BucketlistItemAPI,
+                     '/bucketlist_api/v1.0/bucketlists/<int:id>/items',
+                     endpoint='bucketlistitem')
+    api.add_resource(SingleBucketlistItemAPI,
+                     '/bucketlist_api/v1.0/bucketlists/<int:id>/items/<int:item_id>',
+                     endpoint='single_bucketlistitem')
+
     return app
 
 
-app = ConfigureApp(config_name="testing")
-db.init_app(app)
-api = Api(app)
+app = ConfigureApp(config_name="development")
 # @login_manager.user_loader
 # def load_user(userid):
 #     return User.query.filter(User.id == userid).first()

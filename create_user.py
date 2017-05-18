@@ -26,12 +26,16 @@ def main():
             if create == 'n':
                 return
 
+        print 'Enter Admin user: ',
+        username = raw_input()
+        
         print 'Enter email address: ',
         email = raw_input()
+        
         password = getpass()
         assert password == getpass('Password (again):')
 
-        user = User(email=email, password=bcrypt.generate_password_hash(password))
+        user = User(username=username, email=email, password=password)
         db.session.add(user)
         db.session.commit()
         print 'User added.'

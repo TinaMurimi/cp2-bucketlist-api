@@ -6,7 +6,7 @@ import bucketlist.app
 
 def generate_auth_token(issuer, sub):
     """
-    Generate a self-contained token to carry all the information necessary within itself. 
+    Generate a self-contained JSON Web Token to carry all the information necessary within itself. 
     A JWT is able to transmit basic information about itself, a payload
             (usually user information), and a signature
     """
@@ -39,6 +39,6 @@ def verify_auth_token(token):
         else:
             return 'Forbidden: Please login', 403
     except jwt.ExpiredSignatureError:
-        return 'Signature expired. Please log in again.', 401
+        return 'Signature expired. Please log in again', 401
     except jwt.InvalidTokenError:
-        return 'Invalid token. Please log in again.', 401
+        return 'Invalid token. Please log in again', 401

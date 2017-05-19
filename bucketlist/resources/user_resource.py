@@ -8,7 +8,7 @@ from flask_restful import Api, fields, marshal_with, Resource, reqparse
 from functools import wraps
 
 from bucketlist.resources.views import generate_auth_token, verify_auth_token
-from bucketlist.app.models import auth, db, User, Bucketlist, Bucketlist_Item
+from bucketlist.app.models import db, User, Bucketlist, Bucketlist_Item
 
 user_fields = {
     'user_id':  fields.Integer,
@@ -18,33 +18,7 @@ user_fields = {
 }
 
 
-# def requires_auth(f):
-#     @wraps(f)
-#     def decorated(*args, **kwargs):
-
-#         auth = request.authorization
-#         if not auth:
-#             return {'Error': 'Unauthorised access'}, 401
-
-#         user = User.query.filter_by(username=auth.username).first()
-
-#         if not user:
-# return {'Error': 'User does not exist. Username is case sensitive'}, 404
-
-#         auth_ok = False
-#         if user is not None:
-#             auth_ok = user.verify_password(auth.password)
-
-#         if not auth_ok:
-#             return {'username': auth.username, 'Error': 'Unauthorised access'}, 401
-#         return f(*args, **kwargs)
-
-#     return decorated
-
-
 class UserRegistrationAPI(Resource):
-
-    # decorators = [auth.login_required]
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
@@ -72,7 +46,7 @@ class UserRegistrationAPI(Resource):
             _username = _username.lower()
 
         users = User.query.filter(User.username.ilike(
-            _username) | (User.email == _userEmail)).first()
+            _username) | User.email.ilike(_userEmail)).first()
 
         if users:
             return {'Error': 'Username or email already exists'}, 409
@@ -139,12 +113,13 @@ class UserRegistrationAPI(Resource):
             })
 
         return user_details, 200
-        # return 'We are here', 200
 
 
 class SingleUserAPI(Resource):
     """
     Single user resource
+
+    endpoint: /bucketlist_api/v1.0/user/<int:id>
     """
 
     def __init__(self):
@@ -322,10 +297,6 @@ class UserLoginAPI(Resource):
         user = User.query.filter(User.username.ilike(
             _username)).first()
 
-        # if not user:
-        # return {'Error': 'User does not exist. Username is case sensitive'},
-        # 404
-
         auth = user.verify_password(_userPassword)
         _user_id = user.user_id
 
@@ -366,12 +337,3 @@ class UserLogoutAPI(Resource):
     def delete(self):
         # The method is not allowed for the requested URL.
         return {'Error': 'Method not allowed for login'}, 405
-
-# api.add_resource(UserRegistrationAPI,
-#                  '/bucketlist_api/v1.0/auth/user', endpoint='register_user')
-# api.add_resource(SingleUserAPI,
-#                  '/bucketlist_api/v1.0/auth/user/<int:id>', endpoint='single_user')
-# api.add_resource(UserLoginAPI,
-#                  '/bucketlist_api/v1.0/auth/user/<int:id>', endpoint='user_login')
-# api.add_resource(UserLogoutAPI,
-#                  '/bucketlist_api/v1.0/auth/user/<int:id>', endpoint='user_logout')

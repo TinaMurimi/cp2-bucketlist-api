@@ -52,21 +52,10 @@ def ConfigureApp(config_name):
     # Configure Compressing
     Compress(app)
 
-    # Create an instance of Bcyrpt
-    # bcrypt = Bcrypt(app)
+    # TO JSON from reordering
+    app.config['JSON_SORT_KEY'] = False
 
-    # # Flask login
-    # login_manager = LoginManager()
-    # login_manager.init_app(app)
-    # # login_manager.init_app(app)
-
-    # # View to be used for login
-    # login_manager.login_view = "login"
-
-    # Flask-WTF csrf protection
-    # csrf = CSRFProtect()
-    # csrf.init_app(app)
-
+    # Bind db to app
     db.init_app(app)
 
     # Register resources
@@ -101,6 +90,3 @@ def ConfigureApp(config_name):
 
 
 app = ConfigureApp(config_name="development")
-# @login_manager.user_loader
-# def load_user(userid):
-#     return User.query.filter(User.id == userid).first()

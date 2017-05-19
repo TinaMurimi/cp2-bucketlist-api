@@ -47,44 +47,45 @@ class BucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) is not int:
+        if type(g.current_user) != int:
             return g.current_user
 
-        try:
-            args = self.reqparse.parse_args()
-            _bucketlist = args['bucketlist']
-            _description = args['description']
+        # try:
+        args = self.reqparse.parse_args()
+        _bucketlist = args['bucketlist']
+        _description = args['description']
 
-            bucketlists = Bucketlist.query.filter(Bucketlist.created_by == g.current_user,
-                                                  Bucketlist.list_name.ilike(_bucketlist)).first()
-            # Validate the bucketlist name
-            if not _bucketlist:
-                return {'Error': 'Bucketlist name is required'}, 400
+        bucketlists = Bucketlist.query.filter(Bucketlist.created_by == g.current_user,
+                                              Bucketlist.list_name.ilike(_bucketlist)).first()
 
-            if _bucketlist.isdigit() or len(_bucketlist) < 5 or len(_bucketlist) > 20:
-                return {'Error': 'Invalid bucketlist name or length (5-20 characters)'}, 400
+        # Validate the bucketlist name
+        if not _bucketlist:
+            return {'Error': 'Bucketlist name is required'}, 400
 
-            if bucketlists:
-                return {'Error': 'Bucketlist already exists'}, 409
+        if _bucketlist.isdigit() or len(_bucketlist) < 5 or len(_bucketlist) > 20:
+            return {'Error': 'Invalid bucketlist name or length (5-20 characters)'}, 400
 
-            if _description:
-                _description = _description.capitalize()
+        if bucketlists:
+            return {'Error': 'Bucketlist already exists'}, 409
 
-            bucketlist = Bucketlist(list_name=_bucketlist.capitalize(),
-                                    description=_description,
-                                    created_by=g.current_user,
-                                    )
+        if _description:
+            _description = _description.capitalize()
 
-            # Persist to DB
-            db.session.add(bucketlist)
-            db.session.commit()
+        bucketlist = Bucketlist(list_name=_bucketlist.capitalize(),
+                                description=_description,
+                                created_by=g.current_user,
+                                )
 
-            return {'Message': 'Bucketlist added successfully successfully'}, 201
+        # Persist to DB
+        db.session.add(bucketlist)
+        db.session.commit()
 
-        except Exception as error:
-            return {'Error': str(error)}, 400
-            db.session.flush()
-            db.rollback()
+        return {'Message': 'Bucketlist added successfully successfully'}, 201
+
+        # except Exception as error:
+        #     return {'Error': str(error)}, 400
+        #     db.session.flush()
+        #     db.rollback()
 
     # @requires_auth
     def get(self):
@@ -96,7 +97,7 @@ class BucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) is not int:
+        if type(g.current_user) != int:
             return g.current_user
 
         bucketlists = Bucketlist.query.filter_by(
@@ -130,7 +131,7 @@ class SingleBucketlistAPI(Resource):
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument("name", type=str,
+        self.reqparse.add_argument("bucketlist", type=str,
                                    help='Edit bucketlist name')
         self.reqparse.add_argument("description", type=str,
                                    help='Edit bucketlist description')
@@ -148,7 +149,7 @@ class SingleBucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) is not int:
+        if type(g.current_user) != int:
             return g.current_user
 
         # Validate user to perform CRUD action on a bucketlist
@@ -220,7 +221,7 @@ class SingleBucketlistAPI(Resource):
         if g.current_user != bucketlists.created_by:
             return {'Error': 'Unauthorised access'}, 401
 
-        _bucketlist = args['name']
+        _bucketlist = args['bucketlist']
         _description = args['description']
         _done = args['done']
 
@@ -322,7 +323,7 @@ def validate_access(self, bucketlist_id, bucketlistitem_id=None):
     """
     Check if user has authorisation to perform CRUD on bucketlist item
 
-    returns set: if error/warning else int (current_user)
+    returns set,tuple: if error/warning else int (current_user)
     """
 
     # Validate token
@@ -383,7 +384,7 @@ class BucketlistItemAPI(Resource):
         # Validate user to perform CRUD action on a bucketlist
         current_user = validate_access(self, id)
 
-        if isinstance(current_user,set):
+        if isinstance(current_user, (tuple, set)):
             return current_user
 
         args = self.reqparse.parse_args()
@@ -392,7 +393,8 @@ class BucketlistItemAPI(Resource):
 
         items = Bucketlist_Item.query.filter(
             Bucketlist_Item.list_id == id,
-            Bucketlist_Item.item_name == _item).first()
+
+            Bucketlist_Item.item_name.ilike(_item)).first()
 
         if not _item:
             return {'Error': 'Bucketlist item name is required'}, 400
@@ -402,6 +404,13 @@ class BucketlistItemAPI(Resource):
 
         if items:
             return {'Error': 'Bucketlist item already exists'}, 409
+
+        # Check if bucketlist exists
+        items = Bucketlist.query.filter(
+            Bucketlist.list_id == id).first()
+
+        if not items:
+            return {'Error': 'Bucketlist does not exists'}, 400
 
         try:
 
@@ -438,7 +447,7 @@ class SingleBucketlistItemAPI(Resource):
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument("name", type=str,
+        self.reqparse.add_argument("item", type=str,
                                    help='Bucketlist item name')
         self.reqparse.add_argument("description", type=str,
                                    help='Bucketlist item description')
@@ -491,7 +500,7 @@ class SingleBucketlistItemAPI(Resource):
         if not str(current_user).isdigit():
             return current_user
 
-        _item = args['name']
+        _item = args['item']
         _description = args['description']
         _done = args['done']
         _bucketlist_id = args['bucketlist_id']

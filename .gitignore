@@ -8,3 +8,9 @@ instance/
 .vscode/
 logfile
 .DS_Store
+
+db_repository/
+
+.coverage
+.coveragerc
+.env

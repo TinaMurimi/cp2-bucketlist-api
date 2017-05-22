@@ -8,7 +8,7 @@ from flask_compress import Compress
 
 # from .models import User, Bucketlist
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
 class Config(object):
@@ -21,25 +21,24 @@ class Config(object):
     # SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     # export DATABASE_URL="postgresql://postgres@localhost/bucketlist"
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/bucketlist_test'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/bucketlist'
     # Sdds significant overhead and will be disabled by default in the future
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # True: SQLAlchemy will log all the statements issued to stderr
     SQLALCHEMY_ECHO = False
 
+    # Where to store the SQLAlchemy-migrate data files
     SQLALCHEMY_MIGRATE_REPO = os.path.join(BASE_DIR, 'db_repository')
-
-    MAIL_FROM_EMAIL = "someone@example.com"
 
     SECRET_KEY = 'hsfjdkw930qeddncsmd93847fuwie2903fh3039f3'
 
     RESULTS_PER_PAGE = 20
     JSON_SORT_KEYS = False
 
+
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = "postgresql:///bucketlist"
 
 
 class StagingConfig(Config):
@@ -48,18 +47,17 @@ class StagingConfig(Config):
 
 
 class DevelopmentConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/bucketlist'
     DEVELOPMENT = True
     DEBUG = True
     SQLALCHEMY_ECHO = True
 
 
 class TestingConfig(Config):
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/bucketlist_test'
     TESTING = True
 
 
 configuration = {
-    "default": DevelopmentConfig,
     "development": DevelopmentConfig,
     "production": ProductionConfig,
     "staging": StagingConfig,

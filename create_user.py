@@ -8,7 +8,7 @@ from getpass import getpass
 from flask import current_app
 
 from . import bcrypt
-from .models import db, Role, User, Bucketlist
+from .models import db, User, Bucketlist
 
 
 from flask import current_app
@@ -27,11 +27,11 @@ def main():
                 return
 
         print 'Enter Admin user: ',
-        username = raw_input()
-        
+        username = raw_input'Enter Admin user: ')
+
         print 'Enter email address: ',
         email = raw_input()
-        
+
         password = getpass()
         assert password == getpass('Password (again):')
 
@@ -39,7 +39,6 @@ def main():
         db.session.add(user)
         db.session.commit()
         print 'User added.'
-
 
 
 if __name__ == '__main__':

@@ -50,42 +50,47 @@ class BucketlistAPI(Resource):
         if type(g.current_user) != int:
             return g.current_user
 
-        # try:
-        args = self.reqparse.parse_args()
-        _bucketlist = args['bucketlist']
-        _description = args['description']
+        try:
+            args = self.reqparse.parse_args()
+            _bucketlist = args['bucketlist']
+            _description = args['description']
 
-        bucketlists = Bucketlist.query.filter(Bucketlist.created_by == g.current_user,
-                                              Bucketlist.list_name.ilike(_bucketlist)).first()
+            bucketlists = Bucketlist.query.filter(
+                Bucketlist.created_by == g.current_user,
+                Bucketlist.list_name.ilike(_bucketlist)).first()
 
-        # Validate the bucketlist name
-        if not _bucketlist:
-            return {'Error': 'Bucketlist name is required'}, 400
+            # Validate the bucketlist name
+            if not _bucketlist:
+                return {'Error': 'Bucketlist name is required'}, 400
 
-        if _bucketlist.isdigit() or len(_bucketlist) < 5 or len(_bucketlist) > 20:
-            return {'Error': 'Invalid bucketlist name or length (5-20 characters)'}, 400
+            if _bucketlist.isdigit() or len(_bucketlist) < 5 or len(_bucketlist) > 20:
+                return {
+                    'Error': 'Invalid bucketlist name or length (5-20 characters)'
+                }, 400
 
-        if bucketlists:
-            return {'Error': 'Bucketlist already exists'}, 409
+            if bucketlists:
+                return {'Error': 'Bucketlist already exists'}, 400
 
-        if _description:
-            _description = _description.capitalize()
+            if _description:
+                _description = _description.capitalize()
 
-        bucketlist = Bucketlist(list_name=_bucketlist.capitalize(),
-                                description=_description,
-                                created_by=g.current_user,
-                                )
+            bucketlist = Bucketlist(list_name=_bucketlist.capitalize(),
+                                    description=_description,
+                                    created_by=g.current_user,
+                                    )
 
-        # Persist to DB
-        db.session.add(bucketlist)
-        db.session.commit()
+            # Persist to DB
+            db.session.add(bucketlist)
+            db.session.commit()
 
-        return {'Message': 'Bucketlist added successfully successfully'}, 201
+            return {
+                'Message': 'Bucketlist added successfully successfully'
+            }, 201
 
-        # except Exception as error:
-        #     return {'Error': str(error)}, 400
-        #     db.session.flush()
-        #     db.rollback()
+        except Exception as error:
+            return {'Error': str(error)}, 400
+            db.session.flush()
+            db.rollback()
 
     # @requires_auth
     def get(self):
@@ -106,7 +111,9 @@ class BucketlistAPI(Resource):
         bucketlist_details = []
 
         if not bucketlists:
-            return {'Warning': 'No bucketlists available for current user'}, 204
+            return {
+                'Warning': 'No bucketlists available for current user'
+            }, 204
 
         for bucketlist in bucketlists:
             bucketlist_details.append({
@@ -141,7 +148,9 @@ class SingleBucketlistAPI(Resource):
         super(SingleBucketlistAPI, self).__init__()
 
     def post(self, id):
-        return {'Error': 'Method not allowed. Use /bucketlist_api/v1.0/bucketlists'}, 405
+        return {
+            'Error': 'Method not allowed. Use /bucketlist_api/v1.0/bucketlists'
+        }, 405
 
     def get(self, id):
 
@@ -164,10 +173,11 @@ class SingleBucketlistAPI(Resource):
             return {'Error': 'Unauthorised access'}, 401
 
         try:
-            items = Bucketlist_Item.query.join(Bucketlist,
-                                               (Bucketlist_Item.list_id == Bucketlist.list_id)). \
-                filter(Bucketlist.list_id == id). \
-                all()
+            items = Bucketlist_Item.query.join(
+                Bucketlist,
+                (
+                    Bucketlist_Item.list_id == Bucketlist.list_id)
+            ).filter(Bucketlist.list_id == id).all()
 
             bucketlist_details = {
                 'id': bucketlists.list_id,
@@ -228,10 +238,11 @@ class SingleBucketlistAPI(Resource):
         try:
             if _bucketlist:
                 if _bucketlist.isdigit() or len(_bucketlist) < 5 or len(_bucketlist) > 20:
-                    return {'Error': 'Invalid bucketlist name or length (5-20 characters)'}, 400
+                    return {
+                        'Error': 'Invalid bucketlist name or length (5-20 characters)'
+                    }, 400
 
-                bucketlist = Bucketlist.query.filter(Bucketlist.list_name.ilike(
-                    _bucketlist),
+                bucketlist = Bucketlist.query.filter(
                     Bucketlist.created_by == g.current_user).first()
 
                 if bucketlist and _bucketlist.lower() == bucketlist.list_name.lower():
@@ -239,7 +250,7 @@ class SingleBucketlistAPI(Resource):
 
                 # Before updating, check if the bucketlist exists
                 if bucketlist:
-                    return {'Error': 'Bucketlist already exists'}, 409
+                    return {'Error': 'Bucketlist already exists'}, 400
 
                 bucketlists.list_name = _bucketlist.capitalize()
 
@@ -253,9 +264,9 @@ class SingleBucketlistAPI(Resource):
                     Bucketlist.is_completed.is_(False)).first()
 
                 if incomplete_items:
-                    return {'Error': 'Bucketlist has incomplete items/activities'}, 403
-                else:
-                    return 'Here'
+                    return {
+                        'Error': 'Bucketlist has incomplete items/activities'
+                    }, 403
 
             bucketlists.is_completed = bool(_done)
 
@@ -346,8 +357,10 @@ def validate_access(self, bucketlist_id, bucketlistitem_id=None):
 
     # Check if bucketlist item exists
     if bucketlistitem_id:
-        items = Bucketlist_Item.query.filter_by(list_id=bucketlist_id,
-                                                item_id=bucketlistitem_id).first()
+        items = Bucketlist_Item.query.filter_by(
+            list_id=bucketlist_id,
+            item_id=bucketlistitem_id
+        ).first()
 
         if not items:
             return {'Error': 'Bucketlist item does not exist'}, 404
@@ -393,17 +406,19 @@ class BucketlistItemAPI(Resource):
 
         items = Bucketlist_Item.query.filter(
             Bucketlist_Item.list_id == id,
-
             Bucketlist_Item.item_name.ilike(_item)).first()
 
         if not _item:
             return {'Error': 'Bucketlist item name is required'}, 400
 
         if _item.isdigit() or len(_item) < 5 or len(_item) > 20:
-            return {'Error': 'Invalid bucketlist name or length (5-20 characters)'}, 400
+            return {
+                'Error': 'Invalid bucketlist name or length (5-20 characters)'
+            }, 400
 
         if items:
-            return {'Error': 'Bucketlist item already exists'}, 409
+            return {'Error': 'Bucketlist item already exists'}, 400
+            # return {'Error': items.item_name}, 400
 
         # Check if bucketlist exists
         items = Bucketlist.query.filter(
@@ -423,7 +438,9 @@ class BucketlistItemAPI(Resource):
             db.session.add(item)
             db.session.commit()
 
-            return {'Message': 'Bucketlist item added successfully successfully'}, 201
+            return {
+                'Message': 'Bucketlist item added successfully successfully'
+            }, 201
 
         except Exception as error:
             return {'Error': str(error)}, 400
@@ -435,7 +452,9 @@ class BucketlistItemAPI(Resource):
         Method not allowed for single bucketlist item
         """
 
-        return {'Error': 'Mehtod not allowed. Use /bucketlist_api/v1.0/bucketlists/<int:id>'}, 405
+        return {
+            'Error': 'Mehtod not allowed. Use /bucketlist_api/v1.0/bucketlists/<int:id>'
+        }, 405
 
 
 class SingleBucketlistItemAPI(Resource):
@@ -452,14 +471,14 @@ class SingleBucketlistItemAPI(Resource):
         self.reqparse.add_argument("description", type=str,
                                    help='Bucketlist item description')
         self.reqparse.add_argument("done", type=bool,
-                                   help='Have you done/completed the bucketlist item?')
-        self.reqparse.add_argument("bucketlist_id", type=int,
-                                   help='Reassign a wrongly placed bucketlist item')
+                                   help='Is the bucketlist item completed?')
 
         super(SingleBucketlistItemAPI, self).__init__()
 
     def post(self, id, item_id):
-        return {'Error': 'Method not allowed. Use /bucketlist_api/v1.0/bucketlists/<int:id>/items'}, 405
+        return {
+            'Error': 'Method not allowed. Use /bucketlist_api/v1.0/bucketlists/<int:id>/items'
+        }, 405
 
     def get(self, id, item_id):
 
@@ -503,21 +522,26 @@ class SingleBucketlistItemAPI(Resource):
         _item = args['item']
         _description = args['description']
         _done = args['done']
-        _bucketlist_id = args['bucketlist_id']
 
-        items = Bucketlist_Item.query.filter(Bucketlist_Item.item_id == item_id,
-                                             Bucketlist_Item.list_id == id).first()
+        items = Bucketlist_Item.query.filter(
+            Bucketlist_Item.item_id == item_id,
+            Bucketlist_Item.list_id == id
+        ).first()
 
         if _item:
             if _item.isdigit() or len(_item) < 5 or len(_item) > 20:
-                return {'Error': 'Invalid bucketlist name or length (5-20 characters)'}, 400
+                return {
+                    'Error': 'Invalid bucketlist name or length (5-20 characters)'
+                }, 400
 
-            item = Bucketlist_Item.query.filter(Bucketlist_Item.list_id == id,
-                                                Bucketlist_Item.item_name.ilike(_item)).first()
+            item = Bucketlist_Item.query.filter(
+                Bucketlist_Item.list_id == id,
+                Bucketlist_Item.item_name.ilike(_item)
+            ).first()
 
             # Before updating, check if the bucketlist exists
             if item:
-                return {'Error': 'Bucketlist item already exists'}, 409
+                return {'Error': 'Bucketlist item already exists'}, 400
 
             items.item_name = _item
 
@@ -526,9 +550,6 @@ class SingleBucketlistItemAPI(Resource):
 
         if _done:
             items.is_completed = _done
-
-        if _bucketlist_id:
-            items.list_id = _bucketlist_id
 
         # Update date_modified
         items.date_modified = date.today().isoformat()

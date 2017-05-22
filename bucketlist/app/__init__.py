@@ -1,6 +1,8 @@
 # # This file initializes your application and brings together all of the
 # various components
 
+import os
+
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_compress import Compress
@@ -9,10 +11,8 @@ from flask_restful import Api
 from flask_security import Security, SQLAlchemyUserDatastore
 from flask_sqlalchemy import SQLAlchemy
 
-from flask_wtf.csrf import CSRFProtect
-
-from ..config import configuration
-from .models import db, User, Role
+from bucketlist.config import configuration
+from bucketlist.app.models import db, User
 
 from bucketlist.resources.user_resource import (UserRegistrationAPI,
                                                 SingleUserAPI,
@@ -26,12 +26,11 @@ from bucketlist.resources.bucketlist_resource import (
     SingleBucketlistItemAPI,
 )
 
-# When instance_relative_config=True if we create our app with the Flask() call
-# app.config.from_pyfile() will load the specified file from the
-# instance/directory
-
 
 def ConfigureApp(config_name):
+    # When instance_relative_config=True if we create our app with the Flask()
+    # call app.config.from_pyfile() will load the specified file from the
+    # instance/directory
     app = Flask(__name__, instance_relative_config=True)
 
     # Load the default configuration
@@ -47,13 +46,13 @@ def ConfigureApp(config_name):
     # $ export APP_CONFIG_FILE=/Users/tinabob/cp2-bucketlist-api/config.py
 
     # Configure Security
-    user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+    # user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
     # Configure Compressing
     Compress(app)
 
     # TO JSON from reordering
-    app.config['JSON_SORT_KEY'] = False
+    app.config['JSON_SORT_KEYS'] = False
 
     # Bind db to app
     db.init_app(app)
@@ -89,4 +88,5 @@ def ConfigureApp(config_name):
     return app
 
 
-app = ConfigureApp(config_name="development")
+config_name = os.getenv('APP_SETTINGS')
+app = ConfigureApp(config_name=config_name)

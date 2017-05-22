@@ -6,13 +6,14 @@ import bucketlist.app
 
 def generate_auth_token(issuer, sub):
     """
-    Generate a self-contained JSON Web Token to carry all the information necessary within itself. 
+    Generate a self-contained JSON Web Token to carry all the information necessary within itself.
     A JWT is able to transmit basic information about itself, a payload
             (usually user information), and a signature
     """
 
     payload = {"iss": issuer,
-               "exp": datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=60 * 60),
+               "exp": datetime.datetime.utcnow() + datetime.timedelta(
+                   days=0, seconds=60 * 60),
                "iat": datetime.datetime.utcnow(),
                "sub": sub,
                }

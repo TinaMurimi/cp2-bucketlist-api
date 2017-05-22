@@ -49,7 +49,7 @@ class UserRegistrationAPI(Resource):
             _username) | User.email.ilike(_userEmail)).first()
 
         if users:
-            return {'Error': 'Username or email already exists'}, 409
+            return {'Error': 'Username or email already exists'}, 400
 
         email_regex = re.compile(
             r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
@@ -92,7 +92,7 @@ class UserRegistrationAPI(Resource):
         user = User.query.filter_by(
             user_id=g.current_user).first()
 
-        if user.role != "Admin":
+        if user.admin is not True:
             return {'Error': 'Unauthorised access'}, 401
 
         users = User.query.order_by(User.username).all()
@@ -133,7 +133,9 @@ class SingleUserAPI(Resource):
 
     def post(self, id):
         # The method is not allowed for the requested URL.
-        return {'Error': 'Post not allowed for already existing user. Try PUT to edit user details'}, 405
+        return {
+            'Error': 'Post not allowed for already existing user. Try PUT to edit user details'
+        }, 405
 
     def get(self, id):
 
@@ -148,7 +150,7 @@ class SingleUserAPI(Resource):
             user_id=g.current_user).first()
 
         # Validate user to perform CRUD action on a user
-        if (g.current_user != id and user.role != "Admin"):
+        if (g.current_user != id and user.admin is not True):
             return {'Error Here:': 'Unauthorised access'}, 401
 
         # Fetch user from the DB
@@ -194,9 +196,6 @@ class SingleUserAPI(Resource):
             _userPassword = args['password']
 
             if _username:
-                # users = User.query.filter_by(
-                #     username=_username).first()
-
                 users = User.query.filter(
                     User.username.ilike(_username)).first()
 
@@ -204,14 +203,16 @@ class SingleUserAPI(Resource):
                     if users.username == _username:
                         return {'Error': 'Username not modified'}, 304
 
-                    return {'Error': 'Username or email already exists'}, 409
+                    return {'Error': 'Username or email already exists'}, 400
 
                 user.username = _username
 
             if _userPassword:
                 if (len(_userPassword) < 8 or len(_userPassword) > 15):
                     db.session.rollback()
-                    return {'Message': 'Password should have 8-15 characters'}, 400
+                    return {
+                        'Message': 'Password should have 8-15 characters'
+                    }, 400
 
                 user.password = _userPassword
 
@@ -246,7 +247,7 @@ class SingleUserAPI(Resource):
             user_id=g.current_user).first()
 
         # Validate user to perform CRUD action on a user
-        if user.role != "Admin":
+        if user.admin is not True:
             return {'Error': 'Unauthorised access'}, 401
 
         # Check if the user exists
@@ -269,7 +270,9 @@ class SingleUserAPI(Resource):
 
             db.session.delete(users)
             db.session.commit()
-            return {'Message': 'User {} deleted successfully'.format(_username)}, 200
+            return {
+                'Message': 'User {} deleted successfully'.format(_username)
+            }, 200
 
         except Exception as error:
             db.session.rollback()

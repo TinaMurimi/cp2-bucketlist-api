@@ -48,7 +48,7 @@ class User(db.Model):
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     authenticated = db.Column(db.Boolean, nullable=False, default=False)
-    active = db.Column(db.Boolean, nullable=False, default=False)
+    active = db.Column(db.Boolean, nullable=False, default=True)
     admin = db.Column(db.Boolean, nullable=False, default=False)
     created_on = db.Column(db.DateTime, default=date.today().isoformat())
 

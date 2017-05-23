@@ -15,6 +15,7 @@ from bucketlist.config import configuration
 from bucketlist.app.models import db, User
 
 from bucketlist.resources.user_resource import (UserRegistrationAPI,
+                                                AllRegisteredUsers,
                                                 SingleUserAPI,
                                                 UserLoginAPI,
                                                 UserLogoutAPI,
@@ -62,6 +63,9 @@ def ConfigureApp(config_name):
     api.add_resource(UserRegistrationAPI,
                      '/bucketlist_api/v1.0/auth/register',
                      endpoint='register_user')
+    api.add_resource(AllRegisteredUsers,
+                     '/bucketlist_api/v1.0/users',
+                     endpoint='all_users')
     api.add_resource(SingleUserAPI,
                      '/bucketlist_api/v1.0/user/<int:id>',
                      endpoint='single_user')

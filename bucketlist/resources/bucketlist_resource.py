@@ -10,16 +10,20 @@ from sqlalchemy import func
 
 from bucketlist.app.models import auth, db, User, Bucketlist, Bucketlist_Item
 from bucketlist.resources.views import verify_auth_token
+from bucketlist.app.serializer import (marshmallow,
+                                       UserSchema,
+                                       BucketlistSchema,
+                                       BucketlistDetailsSchema,
+                                       BucketlistItemSchema
+                                       )
 
+bucketlist_schema = BucketlistSchema()
+bucketlists_schema = BucketlistSchema(many=True)
 
-user_fields = {
-    'user_id':  fields.Integer,
-    'username': fields.String,
-    'email': fields.String,
-    'password': fields.String,
-}
+bucketlistDetails_schema = BucketlistDetailsSchema()
 
-RESULTS_PER_PAGE = 20
+bucketlistitem_schema = BucketlistItemSchema()
+bucketlistitems_schema = BucketlistItemSchema(many=True)
 
 
 class BucketlistAPI(Resource):
@@ -88,11 +92,10 @@ class BucketlistAPI(Resource):
             }, 201
 
         except Exception as error:
-            return {'Error': str(error)}, 400
+            return {'Error 1': str(error)}, 400
             db.session.flush()
             db.rollback()
 
-    # @requires_auth
     def get(self):
         """
         Returns a list of all bucketlists for a particular user
@@ -108,25 +111,14 @@ class BucketlistAPI(Resource):
         bucketlists = Bucketlist.query.filter_by(
             created_by=g.current_user).all()
 
-        bucketlist_details = []
-
         if not bucketlists:
             return {
                 'Warning': 'No bucketlists available for current user'
             }, 204
 
-        for bucketlist in bucketlists:
-            bucketlist_details.append({
-                'id': bucketlist.list_id,
-                'name': bucketlist.list_name,
-                'description': bucketlist.description,
-                'is_completed': bucketlist.is_completed,
-                'date_created': str(bucketlist.created_on),
-                'date_modified': str(bucketlist.date_modified),
-                'created_by': bucketlist.created_by,
-            })
-
-        return bucketlist_details, 200
+        response = bucketlists_schema.jsonify(bucketlists)
+        response.status_code = 200
+        return response
 
 
 class SingleBucketlistAPI(Resource):
@@ -162,14 +154,14 @@ class SingleBucketlistAPI(Resource):
             return g.current_user
 
         # Validate user to perform CRUD action on a bucketlist
-        bucketlists = Bucketlist.query.filter_by(
+        bucketlist = Bucketlist.query.filter_by(
             list_id=id).first()
 
         # Check if bucketlist exists
-        if not bucketlists:
+        if not bucketlist:
             return {'Error': 'Bucketlist does not exist'}, 404
 
-        if g.current_user != bucketlists.created_by:
+        if g.current_user != bucketlist.created_by:
             return {'Error': 'Unauthorised access'}, 401
 
         try:
@@ -180,14 +172,14 @@ class SingleBucketlistAPI(Resource):
             ).filter(Bucketlist.list_id == id).all()
 
             bucketlist_details = {
-                'id': bucketlists.list_id,
-                'name': bucketlists.list_name,
-                'description': bucketlists.description,
+                'id': bucketlist.list_id,
+                'name': bucketlist.list_name,
+                'description': bucketlist.description,
                 'items': ['No bucketlist items available'],
-                'date_created': str(bucketlists.created_on),
-                'date_modified': str(bucketlists.date_modified),
-                'created_by': bucketlists.created_by,
-                'done': bucketlists.is_completed,
+                'date_created': str(bucketlist.created_on),
+                'date_modified': str(bucketlist.date_modified),
+                'created_by': bucketlist.created_by,
+                'done': bucketlist.is_completed,
             }
 
             item_details = []
@@ -203,7 +195,12 @@ class SingleBucketlistAPI(Resource):
 
                 bucketlist_details['items'] = item_details
 
-            return bucketlist_details, 200
+            # return bucketlist_details, 200
+
+            # TO CHANGE ---- TO CHANGE ---- TO CHANGE
+            response = bucketlistDetails_schema.jsonify(bucketlist_details)
+            response.status_code = 200
+            return response
 
         except Exception as error:
             db.session.rollback()
@@ -243,10 +240,11 @@ class SingleBucketlistAPI(Resource):
                     }, 400
 
                 bucketlist = Bucketlist.query.filter(
-                    Bucketlist.created_by == g.current_user).first()
+                    Bucketlist.created_by == g.current_user,
+                    Bucketlist.list_name.ilike(_bucketlist)).first()
 
-                if bucketlist and _bucketlist.lower() == bucketlist.list_name.lower():
-                    return {'Message': 'Bucketlist name not modified'}, 304
+                # if bucketlist and _bucketlist.lower() == bucketlist.list_name.lower():
+                #     return {'Message': 'Bucketlist name not modified'}, 304
 
                 # Before updating, check if the bucketlist exists
                 if bucketlist:
@@ -280,16 +278,9 @@ class SingleBucketlistAPI(Resource):
             bucketlists = Bucketlist.query.filter_by(
                 list_id=id).first()
 
-            bucketlist_details = {
-                'id': bucketlists.list_id,
-                'name': bucketlists.list_name,
-                'description': bucketlists.description,
-                'date_created': str(bucketlists.created_on),
-                'date_modified': str(bucketlists.date_modified),
-                'created_by': bucketlists.created_by,
-                'done': bucketlists.is_completed,
-            }
-            return bucketlist_details, 200
+            response = bucketlist_schema.jsonify(bucketlists)
+            response.status_code = 200
+            return response
 
         except Exception as error:
             db.session.rollback()
@@ -493,17 +484,9 @@ class SingleBucketlistItemAPI(Resource):
 
         try:
 
-            item_details = {
-                'id': items.item_id,
-                'list_id': items.list_id,
-                'name': items.item_name,
-                'description': items.description,
-                'date_created': str(items.created_on),
-                'date_modified': str(items.date_modified),
-                'done': items.is_completed,
-            }
-
-            return item_details, 200
+            response = bucketlistitem_schema.jsonify(items)
+            response.status_code = 200
+            return response
 
         except Exception as error:
             db.session.rollback()
@@ -563,16 +546,9 @@ class SingleBucketlistItemAPI(Resource):
             items = Bucketlist_Item.query.filter_by(
                 item_id=item_id).first()
 
-            item_details = {
-                'id': items.item_id,
-                'list_id': items.list_id,
-                'name': items.item_name,
-                'description': items.description,
-                'date_created': str(items.created_on),
-                'date_modified': str(items.date_modified),
-                'done': items.is_completed,
-            }
-            return item_details, 200
+            response = bucketlistitem_schema.jsonify(items)
+            response.status_code = 200
+            return response
 
         except Exception as error:
             db.session.rollback()

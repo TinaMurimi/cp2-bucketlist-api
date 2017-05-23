@@ -25,16 +25,14 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
+# app.config['JSON_SORT_KEYS'] = False
+
 
 @manager.command
 def createdb():
 
-    os.system('createdb bucketlist_test')
-    """Creates the db tables"""
-    db.create_all()
-    db.session.commit()
-
-    os.system('createdb bucketlist')
+    os.system('createdb bucketlist_test owner postgres')
+    os.system('createdb bucketlist owner postgres')
     """Creates the db tables"""
     db.create_all()
     db.session.commit()
@@ -115,6 +113,10 @@ if app.config['SQLALCHEMY_DATABASE_URI'] is None:
 else:
     print (colored("\nDatabase used:--->", "cyan"),
            app.config['SQLALCHEMY_DATABASE_URI'], "\n")
+
+
+print(colored("\nJSON_SORT_KEYS used:--->", "cyan"),
+      app.config['JSON_SORT_KEYS'], "\n")
 
 if __name__ == '__main__':
     manager.run()

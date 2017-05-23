@@ -19,6 +19,7 @@ class BucketlistTestCase(unittest.TestCase):
 
         # Bind the app to the current context
         with self.app.app_context():
+            db.drop_all()
             db.create_all()
 
         # User to use for bucketlist and items creation
@@ -34,6 +35,7 @@ class BucketlistTestCase(unittest.TestCase):
                                    data=self.user)
 
         login_json = json.loads(login.data.decode())
+
         self.header = {
             'Authorization': login_json['Token']}
 
@@ -51,7 +53,7 @@ class BucketlistTestCase(unittest.TestCase):
 
         login_don_json = json.loads(login_don.data.decode())
         self.header_don = {
-            'Authorization': login_don_json['Token']}
+            'Authorization': login_don_json["Token"]}
 
         # Bucketlist creation
         self.paragliding = {
@@ -177,7 +179,7 @@ class BucketlistTestCase(unittest.TestCase):
             'bucketlist': 'Dolphin swimming'
         }
 
-        response = self.client().put('/bucketlist_api/v1.0/bucketlists/1',
+        response = self.client().put('/bucketlist_api/v1.0/bucketlists/2',
                                      data=self.new_details,
                                      headers=self.header)
 

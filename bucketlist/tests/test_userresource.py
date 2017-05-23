@@ -152,7 +152,7 @@ class UserTestCase(unittest.TestCase):
         """Test GET all users datails not allowed for normal user"""
 
         # Test authorisation
-        response = self.client().get('/bucketlist_api/v1.0/auth/register',
+        response = self.client().get('/bucketlist_api/v1.0/users',
                                      data=self.user,
                                      headers=self.header)
         self.assertEqual(response.status_code, 401)

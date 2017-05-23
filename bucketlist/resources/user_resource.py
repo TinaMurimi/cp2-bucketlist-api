@@ -1,21 +1,23 @@
 import datetime
+import json
 import jwt
 import re
 
 from flask import Flask, g, jsonify, make_response, request
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-from flask_restful import Api, fields, marshal_with, Resource, reqparse
+from flask_restful import Api, fields, marshal, marshal_with, Resource, reqparse
 from functools import wraps
 
 from bucketlist.resources.views import generate_auth_token, verify_auth_token
 from bucketlist.app.models import db, User, Bucketlist, Bucketlist_Item
+from bucketlist.app.serializer import (marshmallow,
+                                       UserSchema,
+                                       BucketlistSchema,
+                                       BucketlistItemSchema
+                                       )
 
-user_fields = {
-    'user_id':  fields.Integer,
-    'username': fields.String,
-    'email': fields.String,
-    'password': fields.String,
-}
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
 
 
 class UserRegistrationAPI(Resource):
@@ -67,19 +69,19 @@ class UserRegistrationAPI(Resource):
                         )
 
             # User requires to authenticate account before account is activated
-            user.active = False
+            user.active = True
             db.session.add(user)
             db.session.commit()
 
             return {'Message': 'New user registered successfully'}, 201
 
         except Exception as error:
-            return {'error': str(error)}, 400
+            return {'Error': str(error)}, 400
             db.session.flush()
             db.rollback()
 
-    # @marshal_with(user_fields)
-    # @requires_auth
+
+class AllRegisteredUsers(Resource):
     def get(self):
 
         # Validate token
@@ -102,17 +104,9 @@ class UserRegistrationAPI(Resource):
         if not users:
             return {'Warning': 'No users registered'}, 204
 
-        for user in users:
-            user_details.append({
-                'user_id': user.user_id,
-                'username': user.username.capitalize(),
-                'email': user.email,
-                'authenticated': user.authenticated,
-                'active': user.active,
-                'created_on': str(user.created_on),
-            })
-
-        return user_details, 200
+        response = users_schema.jsonify(users)
+        response.status_code = 200
+        return response
 
 
 class SingleUserAPI(Resource):
@@ -128,6 +122,8 @@ class SingleUserAPI(Resource):
                                    help='User\'s username')
         self.reqparse.add_argument(
             "password", type=str, help='Password should have 8-15 characters')
+        self.reqparse.add_argument("active", choices=('True', 'False'),
+                                   help='True or False')
 
         super(SingleUserAPI, self).__init__()
 
@@ -151,7 +147,7 @@ class SingleUserAPI(Resource):
 
         # Validate user to perform CRUD action on a user
         if (g.current_user != id and user.admin is not True):
-            return {'Error Here:': 'Unauthorised access'}, 401
+            return {'Error': 'Unauthorised access'}, 401
 
         # Fetch user from the DB
         users = User.query.filter_by(user_id=id).first()
@@ -160,16 +156,9 @@ class SingleUserAPI(Resource):
         if not users:
             return {'Error': 'User does not exist'}, 404
 
-        user_details = {
-            'user_id': users.user_id,
-            'username': users.username,
-            'email': users.email,
-            'authenticated': users.authenticated,
-            'active': users.active,
-            'created_on': str(users.created_on),
-        }
-
-        return user_details, 200
+        response = user_schema.jsonify(users)
+        response.status_code = 200
+        return response
 
     def put(self, id):
         args = self.reqparse.parse_args()
@@ -191,10 +180,11 @@ class SingleUserAPI(Resource):
         if not user:
             return {'Error': 'User does not exist'}, 404
 
-        try:
-            _username = args['username']
-            _userPassword = args['password']
+        _username = args['username']
+        _userPassword = args['password']
+        _active = args['active']
 
+        try:
             if _username:
                 users = User.query.filter(
                     User.username.ilike(_username)).first()
@@ -216,19 +206,17 @@ class SingleUserAPI(Resource):
 
                 user.password = _userPassword
 
+            if _active:
+                user.active = bool(_active)
+
             db.session.commit()
 
             # Fetch updated record
             user = User.query.filter_by(user_id=id).first()
-            user_details = {
-                'user_id': user.user_id,
-                'username': user.username,
-                'email': user.email,
-                'authenticated': user.authenticated,
-                'active': user.active,
-                'created_on': str(user.created_on),
-            }
-            return user_details, 200
+
+            response = user_schema.jsonify(user)
+            response.status_code = 200
+            return response
 
         except Exception as error:
             db.session.rollback()
@@ -302,6 +290,9 @@ class UserLoginAPI(Resource):
 
         auth = user.verify_password(_userPassword)
         _user_id = user.user_id
+
+        if user.active is False:
+            return {'Error': 'Account is deactivated'}, 400
 
         if not auth:
             return {'Error': 'Incorrect login details'}, 401

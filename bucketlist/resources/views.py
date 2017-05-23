@@ -1,7 +1,10 @@
 import datetime
 import jwt
+import os
 
 import bucketlist.app
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 def generate_auth_token(issuer, sub):
@@ -20,7 +23,7 @@ def generate_auth_token(issuer, sub):
 
     token = jwt.encode(
         payload,
-        bucketlist.app.app.config.get('SECRET_KEY'),
+        SECRET_KEY,
         algorithm='HS256'
     ).decode('utf-8')
 
@@ -33,7 +36,7 @@ def verify_auth_token(token):
     """
     try:
         payload = jwt.decode(token,
-                             bucketlist.app.app.config.get('SECRET_KEY'))
+                             SECRET_KEY)
 
         if payload:
             return payload["sub"]

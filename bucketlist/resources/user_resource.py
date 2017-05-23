@@ -5,7 +5,13 @@ import re
 
 from flask import Flask, g, jsonify, make_response, request
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-from flask_restful import Api, fields, marshal, marshal_with, Resource, reqparse
+from flask_restful import (Api,
+                           fields,
+                           marshal,
+                           marshal_with,
+                           Resource,
+                           reqparse
+                           )
 from functools import wraps
 
 from bucketlist.resources.views import generate_auth_token, verify_auth_token
@@ -36,9 +42,9 @@ class UserRegistrationAPI(Resource):
     def post(self):
 
         args = self.reqparse.parse_args()
-        _username = args['username']
-        _userEmail = args['email']
-        _userPassword = args['password']
+        _username = args['username'].strip()
+        _userEmail = args['email'].strip()
+        _userPassword = args['password'].strip()
 
         if not _username or not _userEmail or not _userPassword:
             return {'Error': 'All fields are required'}, 400
@@ -91,8 +97,7 @@ class AllRegisteredUsers(Resource):
         if type(g.current_user) is not int:
             return g.current_user
 
-        user = User.query.filter_by(
-            user_id=g.current_user).first()
+        user = db.session.query(User).get(g.current_user)
 
         if user.admin is not True:
             return {'Error': 'Unauthorised access'}, 401
@@ -130,7 +135,7 @@ class SingleUserAPI(Resource):
     def post(self, id):
         # The method is not allowed for the requested URL.
         return {
-            'Error': 'Post not allowed for already existing user. Try PUT to edit user details'
+            'Error': 'Method not allowed. Try PUT to edit user details'
         }, 405
 
     def get(self, id):
@@ -142,8 +147,7 @@ class SingleUserAPI(Resource):
         if type(g.current_user) is not int:
             return g.current_user
 
-        user = User.query.filter_by(
-            user_id=g.current_user).first()
+        user = db.session.query(User).get(g.current_user)
 
         # Validate user to perform CRUD action on a user
         if (g.current_user != id and user.admin is not True):
@@ -170,8 +174,7 @@ class SingleUserAPI(Resource):
         if type(g.current_user) is not int:
             return g.current_user
 
-        user = User.query.filter_by(
-            user_id=g.current_user).first()
+        user = db.session.query(User).get(g.current_user)
 
         # Validate user to perform CRUD action on a user
         if g.current_user != id:
@@ -186,6 +189,8 @@ class SingleUserAPI(Resource):
 
         try:
             if _username:
+                _username = _username.strip()
+
                 users = User.query.filter(
                     User.username.ilike(_username)).first()
 
@@ -198,6 +203,8 @@ class SingleUserAPI(Resource):
                 user.username = _username
 
             if _userPassword:
+                _userPassword = _userPassword.strip()
+
                 if (len(_userPassword) < 8 or len(_userPassword) > 15):
                     db.session.rollback()
                     return {
@@ -207,6 +214,7 @@ class SingleUserAPI(Resource):
                 user.password = _userPassword
 
             if _active:
+                _active = _active.strip()
                 user.active = bool(_active)
 
             db.session.commit()
@@ -231,8 +239,7 @@ class SingleUserAPI(Resource):
         if type(g.current_user) is not int:
             return g.current_user
 
-        user = User.query.filter_by(
-            user_id=g.current_user).first()
+        user = db.session.query(User).get(g.current_user)
 
         # Validate user to perform CRUD action on a user
         if user.admin is not True:
@@ -280,8 +287,8 @@ class UserLoginAPI(Resource):
     def post(self):
 
         args = self.reqparse.parse_args()
-        _username = args['username']
-        _userPassword = args['password']
+        _username = args['username'].strip()
+        _userPassword = args['password'].strip()
 
         auth = False
 

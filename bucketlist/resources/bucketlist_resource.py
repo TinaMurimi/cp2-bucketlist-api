@@ -1,10 +1,10 @@
 import json
 
-from datetime import date
+from datetime import datetime
 from flask import Flask, g, jsonify, make_response, request
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-from flask_restful import Api, fields, marshal_with, Resource, reqparse
+from flask_restful import Api, fields, marshal, marshal_with, Resource, reqparse
 from functools import wraps
 from sqlalchemy import func
 
@@ -13,17 +13,25 @@ from bucketlist.resources.views import verify_auth_token
 from bucketlist.app.serializer import (marshmallow,
                                        UserSchema,
                                        BucketlistSchema,
-                                       BucketlistDetailsSchema,
                                        BucketlistItemSchema
                                        )
 
 bucketlist_schema = BucketlistSchema()
 bucketlists_schema = BucketlistSchema(many=True)
 
-bucketlistDetails_schema = BucketlistDetailsSchema()
-
 bucketlistitem_schema = BucketlistItemSchema()
 bucketlistitems_schema = BucketlistItemSchema(many=True)
+
+
+bucketlist_fields = {
+    'id': fields.Integer(),
+    'name': fields.String(),
+    'description': fields.String(),
+    'date_created': fields.DateTime(),
+    'date_modified': fields.DateTime(),
+    'created_by': fields.Integer(),
+    'done': fields.Boolean(),
+}
 
 
 class BucketlistAPI(Resource):
@@ -56,7 +64,7 @@ class BucketlistAPI(Resource):
 
         try:
             args = self.reqparse.parse_args()
-            _bucketlist = args['bucketlist']
+            _bucketlist = args['bucketlist'].strip()
             _description = args['description']
 
             bucketlists = Bucketlist.query.filter(
@@ -76,7 +84,7 @@ class BucketlistAPI(Resource):
                 return {'Error': 'Bucketlist already exists'}, 400
 
             if _description:
-                _description = _description.capitalize()
+                _description = _description.capitalize().strip()
 
             bucketlist = Bucketlist(list_name=_bucketlist.capitalize(),
                                     description=_description,
@@ -92,10 +100,11 @@ class BucketlistAPI(Resource):
             }, 201
 
         except Exception as error:
-            return {'Error 1': str(error)}, 400
+            return {'Error': str(error)}, 400
             db.session.flush()
             db.rollback()
 
+    # @marshal_with(bucketlist_fields, envelope='bucketlists')
     def get(self):
         """
         Returns a list of all bucketlists for a particular user
@@ -116,9 +125,98 @@ class BucketlistAPI(Resource):
                 'Warning': 'No bucketlists available for current user'
             }, 204
 
-        response = bucketlists_schema.jsonify(bucketlists)
-        response.status_code = 200
-        return response
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'q',
+            type=str,
+            location='args',
+            help='Search bucketlist name'
+        )
+        self.reqparse.add_argument(
+            'page',
+            type=int,
+            location='args',
+            default=1,
+            help='Page to start'
+        )
+        self.reqparse.add_argument(
+            'limit',
+            type=int,
+            location='args',
+            default=20,
+            help='Results per page'
+        )
+
+        args = self.reqparse.parse_args()
+        _query = args['q']
+        _page = args['page']
+        _limit = args['limit']
+
+        if _query:
+            _query = _query.strip()
+
+            bucketlists = Bucketlist.query.filter(
+                Bucketlist.created_by == g.current_user,
+                Bucketlist.list_name.ilike('%' + _query + '%')
+            ).order_by(
+                Bucketlist.list_id
+            ).paginate(_page,
+                       _limit,
+                       False)
+
+        else:
+            bucketlists = Bucketlist.query.filter(
+                Bucketlist.created_by == g.current_user
+            ).order_by(
+                Bucketlist.list_id
+            ).paginate(_page,
+                       _limit,
+                       False)
+
+        if not bucketlists.items:
+            return {
+                'Error': 'No bucketlists with the word {}'.format(_query)
+            }, 400
+
+        if bucketlists.has_prev:
+            prev_page = request.url_root + 'api/v1.0/bucketlists/' \
+                + '?page=' + str(_page - 1) + '&limit=' + str(_limit)
+        else:
+            prev_page = 'None'
+
+        if bucketlists.has_next:
+            next_page = request.url_root + 'api/v1.0/bucketlists/' \
+                + '?page=' + str(_page + 1) + '&limit=' + str(_limit)
+        else:
+            next_page = 'None'
+
+        # response = bucketlists_schema.jsonify(bucketlists.items)
+        # response.status_code = 200
+        # return response
+
+        result = bucketlists_schema.jsonify(bucketlists.items)
+
+        response = {
+            'message': {
+                'next_page': next_page,
+                'prev_page': prev_page,
+                'total_pages': bucketlists.pages
+            },
+            'bucketlists': result
+        }
+
+        return result
+        # return (
+        #     {
+        #         'message':
+        #         {
+        #             'next_page': next_page,
+        #             'prev_page': prev_page,
+        #             'total_pages': bucketlists.pages
+        #         },
+        #         'bucketlists': bucketlists_schema.jsonify(bucketlists.items)
+        #     }, 200
+        # )
 
 
 class SingleBucketlistAPI(Resource):
@@ -195,12 +293,7 @@ class SingleBucketlistAPI(Resource):
 
                 bucketlist_details['items'] = item_details
 
-            # return bucketlist_details, 200
-
-            # TO CHANGE ---- TO CHANGE ---- TO CHANGE
-            response = bucketlistDetails_schema.jsonify(bucketlist_details)
-            response.status_code = 200
-            return response
+            return bucketlist_details, 200
 
         except Exception as error:
             db.session.rollback()
@@ -234,6 +327,8 @@ class SingleBucketlistAPI(Resource):
 
         try:
             if _bucketlist:
+                _bucketlist = _bucketlist.strip()
+
                 if _bucketlist.isdigit() or len(_bucketlist) < 5 or len(_bucketlist) > 20:
                     return {
                         'Error': 'Invalid bucketlist name or length (5-20 characters)'
@@ -243,9 +338,6 @@ class SingleBucketlistAPI(Resource):
                     Bucketlist.created_by == g.current_user,
                     Bucketlist.list_name.ilike(_bucketlist)).first()
 
-                # if bucketlist and _bucketlist.lower() == bucketlist.list_name.lower():
-                #     return {'Message': 'Bucketlist name not modified'}, 304
-
                 # Before updating, check if the bucketlist exists
                 if bucketlist:
                     return {'Error': 'Bucketlist already exists'}, 400
@@ -253,9 +345,10 @@ class SingleBucketlistAPI(Resource):
                 bucketlists.list_name = _bucketlist.capitalize()
 
             if _description:
-                bucketlists.description = _description.capitalize()
+                bucketlists.description = _description.capitalize().strip()
 
             if _done is not None and bool(_done):
+                _done = _done.strip()
                 # Check if bucketlist items are all done
                 incomplete_items = Bucketlist_Item.query.filter(
                     Bucketlist_Item.list_id == id,
@@ -269,7 +362,9 @@ class SingleBucketlistAPI(Resource):
             bucketlists.is_completed = bool(_done)
 
             # Update date_modified
-            bucketlists.date_modified = date.today().isoformat()
+            bucketlists.date_modified = datetime.now().isoformat(
+                sep=' ',
+                timespec='minutes')
 
             # Commit changes
             db.session.commit()
@@ -392,7 +487,7 @@ class BucketlistItemAPI(Resource):
             return current_user
 
         args = self.reqparse.parse_args()
-        _item = args['item']
+        _item = args['item'].strip()
         _description = args['description']
 
         items = Bucketlist_Item.query.filter(
@@ -417,6 +512,9 @@ class BucketlistItemAPI(Resource):
 
         if not items:
             return {'Error': 'Bucketlist does not exists'}, 400
+
+        if _description:
+            _description = _description.capitalize().strip(),
 
         try:
 
@@ -444,7 +542,7 @@ class BucketlistItemAPI(Resource):
         """
 
         return {
-            'Error': 'Mehtod not allowed. Use /bucketlist_api/v1.0/bucketlists/<int:id>'
+            'Error': 'Not allowed. Use /bucketlist_api/v1.0/bucketlists/<id>'
         }, 405
 
 
@@ -468,7 +566,7 @@ class SingleBucketlistItemAPI(Resource):
 
     def post(self, id, item_id):
         return {
-            'Error': 'Method not allowed. Use /bucketlist_api/v1.0/bucketlists/<int:id>/items'
+            'Error': 'Not allowed. Use /bucketlist_api/v1.0/bucketlists/<id>/items'
         }, 405
 
     def get(self, id, item_id):
@@ -512,6 +610,7 @@ class SingleBucketlistItemAPI(Resource):
         ).first()
 
         if _item:
+            _item = _item.strip()
             if _item.isdigit() or len(_item) < 5 or len(_item) > 20:
                 return {
                     'Error': 'Invalid bucketlist name or length (5-20 characters)'
@@ -529,13 +628,16 @@ class SingleBucketlistItemAPI(Resource):
             items.item_name = _item
 
         if _description:
+            _description = _description.strip()
             items.description = _description
 
         if _done:
-            items.is_completed = _done
+            items.is_completed = bool(_done)
 
         # Update date_modified
-        items.date_modified = date.today().isoformat()
+        items.date_modified = datetime.now().isoformat(
+            sep=' ',
+            timespec='minutes')
 
         try:
 

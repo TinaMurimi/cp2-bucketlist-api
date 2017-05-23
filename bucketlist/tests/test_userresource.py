@@ -27,6 +27,7 @@ class UserTestCase(unittest.TestCase):
 
         # Bind the app to the current context
         with self.app.app_context():
+            db.drop_all()
             db.create_all()
 
         # Register and login new user

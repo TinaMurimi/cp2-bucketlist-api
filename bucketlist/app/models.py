@@ -5,15 +5,27 @@
 
 import jwt
 
-from datetime import date
+from datetime import date, datetime
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-from flask_sqlalchemy import SQLAlchemy
-from itsdangerous import (TimedJSONWebSignatureSerializer
-                          as Serializer, BadSignature, SignatureExpired)
+from flask_sqlalchemy import Model, SQLAlchemy
+# from itsdangerous import (TimedJSONWebSignatureSerializer
+#                           as Serializer, BadSignature, SignatureExpired)
+
+from sqlalchemy import DateTime, Column
 
 
-db = SQLAlchemy()
+class TimestampedModel(Model):
+    created_on = Column(DateTime,
+                        nullable=False,
+                        default=datetime.now().isoformat(
+                            sep=' ',
+                            timespec='minutes'))
+
+
+db = SQLAlchemy(model_class=TimestampedModel)
+
+# db = SQLAlchemy()
 auth = HTTPBasicAuth()
 bcrypt = Bcrypt()
 
@@ -50,7 +62,17 @@ class User(db.Model):
     authenticated = db.Column(db.Boolean, nullable=False, default=False)
     active = db.Column(db.Boolean, nullable=False, default=True)
     admin = db.Column(db.Boolean, nullable=False, default=False)
-    created_on = db.Column(db.DateTime, default=date.today().isoformat())
+    # created_on = db.Column(db.DateTime,
+    #                        default=datetime.now().isoformat(
+    #                            sep=' ',
+    #                            timespec='minutes')
+    #                        )
+
+    #    default=datetime.today().strftime(format)
+
+    bucketlist = db.relationship(
+        'Bucketlist', backref=db.backref('user', uselist=False),
+        lazy='immediate', order_by='Bucketlist.list_id')
 
     def __init__(self, username, email, password):
         self.username = username
@@ -79,66 +101,12 @@ class User(db.Model):
         """False, as anonymous users aren't supported"""
         return False
 
-    def set_password(self, password):
-        pwhash = bcrypt.hashpw(pw.encode('utf8'), bcrypt.gensalt())
-        self.password = pwhash.decode('utf8')
-        return self.password_hash
-
     @auth.verify_password
     def verify_password(self, password):
         if bcrypt.check_password_hash(self.password, password):
             return True
 
         return False
-
-    @staticmethod
-    def verify_auth_token(token):
-        s = Serializer(secret_key=app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token)
-        except SignatureExpired:
-            # valid token, but expired
-            return None
-        except BadSignature:
-            # invalid token
-            return None
-        user = User.query.get(data['user_id'])
-        return user
-
-    def encode_auth_token(self, user_id):
-        """
-        Generates the Auth Token
-        :return: string
-        """
-        try:
-            payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(
-                    days=0, seconds=5),
-                'iat': datetime.datetime.utcnow(),
-                'sub': user_id
-            }
-            return jwt.encode(
-                payload,
-                app.config.get('SECRET_KEY'),
-                algorithm='HS256'
-            )
-        except Exception as e:
-            return e
-
-    @staticmethod
-    def decode_auth_token(auth_token):
-        """
-        Decodes the auth token
-        :param auth_token:
-        :return: integer|string
-        """
-        try:
-            payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'))
-            return payload['sub']
-        except jwt.ExpiredSignatureError:
-            return 'Signature expired. Please log in again.'
-        except jwt.InvalidTokenError:
-            return 'Invalid token. Please log in again.'
 
 
 class Bucketlist(db.Model):
@@ -149,14 +117,24 @@ class Bucketlist(db.Model):
     list_name = db.Column(db.String(20), nullable=False)
     description = db.Column(db.String(100), nullable=True)
     is_completed = db.Column(db.Boolean(), nullable=False, default=False)
-    created_on = db.Column(db.DateTime, default=date.today().isoformat())
-    date_modified = db.Column(db.DateTime, default=date.today().isoformat())
+    # created_on = db.Column(db.DateTime,
+    #                        default=datetime.now().isoformat(
+    #                            sep=' ',
+    #                            timespec='minutes')
+    #                        )
+    date_modified = db.Column(db.DateTime,
+                              default=datetime.now().isoformat(
+                                  sep=' ',
+                                  timespec='minutes'))
     # created_by = db.Column(db.Integer, db.ForeignKey(
     #     'User.user_id', ondelete='CASCADE'))
 
     created_by = db.Column(db.Integer, db.ForeignKey(
         'User.user_id'), nullable=False)
 
+    items = db.relationship(
+        'Bucketlist_Item', backref=db.backref('bucketlist', uselist=False),
+        lazy='immediate', order_by='Bucketlist_Item.item_id')
     # items = db.relationship('Bucketlist_Item', backref=db.backref(
     #     'item', cascade='delete-orphan', uselist=False, single_parent=True),
     #     lazy='joined',
@@ -167,8 +145,9 @@ class Bucketlist(db.Model):
         self.description = description
         self.created_by = created_by
         self.is_completed = False
-        self.created_on = date.today().isoformat()
-        self.date_modified = date.today().isoformat()
+        self.date_modified = datetime.now().isoformat(
+            sep=' ',
+            timespec='minutes')
 
     def __repr__(self):
         """Return Bucketlist name"""
@@ -193,17 +172,33 @@ class Bucketlist_Item(db.Model):
     item_name = db.Column(db.String(20), nullable=False)
     description = db.Column(db.String(100), nullable=True)
     is_completed = db.Column(db.Boolean(), nullable=False, default=False)
-    created_on = db.Column(db.DateTime, nullable=False,
-                           default=date.today().isoformat())
-    date_modified = db.Column(db.DateTime, default=date.today().isoformat())
+    # created_on = db.Column(db.DateTime, nullable=False,
+    #                        default=datetime.now().isoformat(
+    #                            sep=' ',
+    #                            timespec='minutes'))
+    date_modified = db.Column(db.DateTime,
+                              default=datetime.now().isoformat(
+                                  sep=' ',
+                                  timespec='minutes'))
+
+    # items = db.relationship('Bucketlist', backref=db.backref(
+    #     'bucketlist',
+    #     # cascade='delete-orphan',
+    #     uselist=False,
+    #     single_parent=True
+    # ),
+    #     lazy='joined',
+    #     # primaryjoin='Bucketlist.list_id'=='Bucketlist_Item.list_id'
+    # )
 
     def __init__(self, item_name, description, list_id):
         self.item_name = item_name
         self.list_id = list_id
         self.description = description
         self.is_completed = False
-        self.created_on = date.today().isoformat()
-        self.date_modified = date.today().isoformat()
+        self.date_modified = datetime.now().isoformat(
+            sep=' ',
+            timespec='minutes')
 
     def __repr__(self):
         """Return Bucketlist item name"""

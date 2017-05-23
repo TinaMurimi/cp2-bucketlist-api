@@ -97,7 +97,7 @@ class BucketlistTestCase(unittest.TestCase):
             db.session.remove()
             db.drop_all()
 
-    def test_bucketlist__creation(self):
+    def test_bucketlist_creation(self):
         """Test user can create a bucletlist"""
 
         # Bucketlist creation
@@ -138,6 +138,44 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertIn(
             'Bucketlist already exists',
             str(response.data))
+
+    def test_get_all_bucketlists(self):
+        """Test user can get list od all bucketlists"""
+
+        response = self.client().get('bucketlist_api/v1.0/bucketlists',
+                                     headers=self.header)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_search_bucketlists(self):
+        """
+        Test GET searching for bucket lists based on the name
+        """
+        response = self.client().get('bucketlist_api/v1.0/bucketlists?q=par',
+                                     headers=self.header)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_search(self):
+        """
+        Test GET searching for bucket lists based on the name that does not
+        have a match
+        """
+
+        response = self.client().get('bucketlist_api/v1.0/bucketlists?q=bucketlist',
+                                     headers=self.header)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(
+            'No bucketlists with the word bucketlist',
+            str(response.data))
+
+    def test_get_pagination_bucketlists(self):
+        """
+        Test pagination
+        """
+
+        response = self.client().get('bucketlist_api/v1.0/bucketlists?limit=1',
+                                     headers=self.header)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Paragliding', str(response.data))
 
     def test_get_bucketlist_exists(self):
         """
@@ -298,7 +336,7 @@ class BucketlistTestCase(unittest.TestCase):
             data=self.swimming_item,
             headers=self.header)
 
-        # self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 201)
         self.assertIn(
             'Bucketlist item added successfully successfully',
             str(response.data))
@@ -434,7 +472,7 @@ class BucketlistTestCase(unittest.TestCase):
             data=self.item_new_details,
             headers=self.header)
 
-        # self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400)
         self.assertIn('Bucketlist item already exists', str(response.data))
 
     def test_delete_bucketlist_item(self):

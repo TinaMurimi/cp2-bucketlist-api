@@ -17,7 +17,9 @@ from termcolor import colored
 
 from bucketlist.app import app
 from bucketlist.app.models import db, User
-from bucketlist.resources.user_resource import UserRegistrationAPI, SingleUserAPI
+from bucketlist.resources.user_resource import (UserRegistrationAPI,
+                                                SingleUserAPI
+                                                )
 
 
 migrate = Migrate(app, db)

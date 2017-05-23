@@ -50,11 +50,14 @@ class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
     SQLALCHEMY_ECHO = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/bucketlist_test'
     TESTING = True
+    SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 configuration = {

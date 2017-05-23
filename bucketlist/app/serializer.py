@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
+from marshmallow import Schema, fields
 
 from bucketlist.app.models import db, User, Bucketlist, Bucketlist_Item
 
@@ -10,6 +11,13 @@ marshmallow = Marshmallow()
 
 
 class UserSchema(marshmallow.ModelSchema):
+    # bucketlists = marshmallow.Nested('BucketlistSchema', many=True)
+
+    # _links = marshmallow.Hyperlinks({
+    #     'self': marshmallow.URL('user', id='<id>'),
+    #     'collection': marshmallow.URL('user')
+    # })
+
     class Meta:
         # Fields to show
         fields = ('user_id', 'username', 'email', 'active', 'created_on')
@@ -27,7 +35,7 @@ class BucketlistSchema(marshmallow.ModelSchema):
             'description',
             'created_on',
             'date_modified',
-            'created_by',
+            # 'created_by',
             'is_completed',
         )
 
@@ -36,6 +44,14 @@ class BucketlistSchema(marshmallow.ModelSchema):
 
 
 class BucketlistDetailsSchema(marshmallow.ModelSchema):
+
+    # items = marshmallow.Nested('BucketlistItemSchema', many=True)
+
+    # _links = marshmallow.Hyperlinks({
+    #     'self': marshmallow.URL('bucketlist', id='<id>'),
+    #     'collection': marshmallow.URL('bucketlist')
+    # })
+
     class Meta:
         # Fields to show
         fields = (

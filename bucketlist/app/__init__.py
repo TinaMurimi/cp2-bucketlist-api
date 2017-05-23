@@ -85,9 +85,10 @@ def ConfigureApp(config_name):
     api.add_resource(BucketlistItemAPI,
                      '/bucketlist_api/v1.0/bucketlists/<int:id>/items',
                      endpoint='bucketlistitem')
-    api.add_resource(SingleBucketlistItemAPI,
-                     '/bucketlist_api/v1.0/bucketlists/<int:id>/items/<int:item_id>',
-                     endpoint='single_bucketlistitem')
+    api.add_resource(
+        SingleBucketlistItemAPI,
+        '/bucketlist_api/v1.0/bucketlists/<int:id>/items/<int:item_id>',
+        endpoint='single_bucketlistitem')
 
     return app
 

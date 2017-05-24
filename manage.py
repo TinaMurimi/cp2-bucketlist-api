@@ -24,9 +24,6 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
-# app.config['JSON_SORT_KEYS'] = False
-
-
 @manager.command
 def createdb():
 
@@ -101,7 +98,6 @@ def createadmin():
 
     except Exception as error:
         return {'error': str(error)}, 400
-        # db.session.flush()
         db.rollback()
 
 

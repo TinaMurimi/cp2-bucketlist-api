@@ -11,13 +11,6 @@ marshmallow = Marshmallow()
 
 
 class UserSchema(marshmallow.ModelSchema):
-    # bucketlists = marshmallow.Nested('BucketlistSchema', many=True)
-
-    # _links = marshmallow.Hyperlinks({
-    #     'self': marshmallow.URL('user', id='<id>'),
-    #     'collection': marshmallow.URL('user')
-    # })
-
     class Meta:
         # Fields to show
         fields = ('user_id', 'username', 'email', 'active', 'created_on')
@@ -33,32 +26,6 @@ class BucketlistSchema(marshmallow.ModelSchema):
             'list_id',
             'list_name',
             'description',
-            'created_on',
-            'date_modified',
-            # 'created_by',
-            'is_completed',
-        )
-
-        model = Bucketlist
-        ordered = True
-
-
-class BucketlistDetailsSchema(marshmallow.ModelSchema):
-
-    # items = marshmallow.Nested('BucketlistItemSchema', many=True)
-
-    # _links = marshmallow.Hyperlinks({
-    #     'self': marshmallow.URL('bucketlist', id='<id>'),
-    #     'collection': marshmallow.URL('bucketlist')
-    # })
-
-    class Meta:
-        # Fields to show
-        fields = (
-            'list_id',
-            'list_name',
-            'description',
-            'items',
             'created_on',
             'date_modified',
             'created_by',

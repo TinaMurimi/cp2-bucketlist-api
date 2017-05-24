@@ -21,17 +21,6 @@ bucketlistitem_schema = BucketlistItemSchema()
 bucketlistitems_schema = BucketlistItemSchema(many=True)
 
 
-# bucketlist_fields = {
-#     'id': fields.Integer,
-#     'name': fields.String,
-#     'description': fields.String,
-#     'date_created': fields.DateTime,
-#     'date_modified': fields.DateTime,
-#     'created_by': fields.Integer,
-#     'done': fields.Boolean,
-# }
-
-
 class BucketlistAPI(Resource):
 
     def __init__(self):
@@ -57,7 +46,6 @@ class BucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        # if type(g.current_user) != int:
         if not isinstance(g.current_user, int):
             return g.current_user
 
@@ -103,7 +91,6 @@ class BucketlistAPI(Resource):
             db.session.flush()
             db.rollback()
 
-    # @marshal_with(bucketlist_fields, envelope="bucketlists")
     def get(self):
         """
         Returns a list of all bucketlists for a particular user
@@ -113,7 +100,6 @@ class BucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        # if type(g.current_user) != int:
         if not isinstance(g.current_user, int):
             return g.current_user
 
@@ -180,9 +166,6 @@ class BucketlistAPI(Resource):
             return {
                 'Error': 'No bucketlists with the word {}'.format(_query)
             }, 400
-        # else:
-        #     return {
-        #         'Message': str(bucketlists.items[0].list_name)}, 200
 
         if bucketlists.has_prev:
             prev_page = request.url_root + 'bucketlist_api/v1.0/bucketlists' \
@@ -245,7 +228,6 @@ class SingleBucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        # if type(g.current_user) != int:
         if not isinstance(g.current_user, int):
             return g.current_user
 
@@ -379,7 +361,6 @@ class SingleBucketlistAPI(Resource):
             db.session.rollback()
             return {'Error': str(error)}, 400
 
-    # @requires_auth
     def delete(self, id):
 
         # Validate token
@@ -400,18 +381,18 @@ class SingleBucketlistAPI(Resource):
         if g.current_user != bucketlist.created_by:
             return {'Error': 'Unauthorised access'}, 401
 
-        # try:
-        # Delete bucketlist items for bucketlist
-        db.session.query(Bucketlist_Item).filter(
-            Bucketlist_Item.list_id == id).delete()
+        try:
+            # Delete bucketlist items for bucketlist
+            db.session.query(Bucketlist_Item).filter(
+                Bucketlist_Item.list_id == id).delete()
 
-        db.session.delete(bucketlist)
-        db.session.commit()
-        return {'Message': 'Bucketlist deleted successfully'}, 200
+            db.session.delete(bucketlist)
+            db.session.commit()
+            return {'Message': 'Bucketlist deleted successfully'}, 200
 
-        # except Exception as error:
-        #     db.session.rollback()
-        #     return {'Error': str(error)}, 400
+        except Exception as error:
+            db.session.rollback()
+            return {'Error': str(error)}, 400
 
 
 def validate_access(self, bucketlist_id, bucketlistitem_id=None):
@@ -502,7 +483,6 @@ class BucketlistItemAPI(Resource):
 
         if items:
             return {'Error': 'Bucketlist item already exists'}, 400
-            # return {'Error': items.item_name}, 400
 
         # Check if bucketlist exists
         items = Bucketlist.query.filter(

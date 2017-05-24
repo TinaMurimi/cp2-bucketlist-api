@@ -1,6 +1,4 @@
-# This is where you define the models of your application.
-
-# datetime.fromtimestamp(time.time())
+# These are the models for the application
 
 import jwt
 
@@ -8,8 +6,6 @@ from datetime import date, datetime
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 from flask_sqlalchemy import Model, SQLAlchemy
-# from itsdangerous import (TimedJSONWebSignatureSerializer
-#                           as Serializer, BadSignature, SignatureExpired)
 
 from sqlalchemy import DateTime, Column
 
@@ -24,30 +20,8 @@ class TimestampedModel(Model):
 
 db = SQLAlchemy(model_class=TimestampedModel)
 
-# db = SQLAlchemy()
 auth = HTTPBasicAuth()
 bcrypt = Bcrypt()
-
-# roles_users = db.Table(
-#     'roles_user',
-#     db.Column('user_id', db.Integer(), db.ForeignKey('User.user_id')),
-#     db.Column('role_id', db.Integer(), db.ForeignKey('Role.role_id'))
-# )
-
-
-# class Role(db.Model):
-
-#     __tablename__ = 'Role'
-
-#     role_id = db.Column(db.Integer(), primary_key=True)
-#     role_name = db.Column(db.String(20), unique=True)
-#     description = db.Column(db.String(50))
-
-#     def __init__(self, role_name):
-#         self.role_name = role_name
-
-#     def __repr__(self):
-#         return '<Role %r>' % (self.role_name)
 
 
 class User(db.Model):
@@ -61,13 +35,6 @@ class User(db.Model):
     authenticated = db.Column(db.Boolean, nullable=False, default=False)
     active = db.Column(db.Boolean, nullable=False, default=True)
     admin = db.Column(db.Boolean, nullable=False, default=False)
-    # created_on = db.Column(db.DateTime,
-    #                        default=datetime.now().isoformat(
-    #                            sep=' ',
-    #                            timespec='minutes')
-    #                        )
-
-    #    default=datetime.today().strftime(format)
 
     bucketlist = db.relationship(
         'Bucketlist', backref=db.backref('user', uselist=False),
@@ -116,17 +83,11 @@ class Bucketlist(db.Model):
     list_name = db.Column(db.String(20), nullable=False)
     description = db.Column(db.String(100), nullable=True)
     is_completed = db.Column(db.Boolean(), nullable=False, default=False)
-    # created_on = db.Column(db.DateTime,
-    #                        default=datetime.now().isoformat(
-    #                            sep=' ',
-    #                            timespec='minutes')
-    #                        )
+
     date_modified = db.Column(db.DateTime,
                               default=datetime.now().isoformat(
                                   sep=' ',
                                   timespec='minutes'))
-    # created_by = db.Column(db.Integer, db.ForeignKey(
-    #     'User.user_id', ondelete='CASCADE'))
 
     created_by = db.Column(db.Integer, db.ForeignKey(
         'User.user_id'), nullable=False)
@@ -134,10 +95,6 @@ class Bucketlist(db.Model):
     items = db.relationship(
         'Bucketlist_Item', backref=db.backref('bucketlist', uselist=False),
         lazy='immediate', order_by='Bucketlist_Item.item_id')
-    # items = db.relationship('Bucketlist_Item', backref=db.backref(
-    #     'item', cascade='delete-orphan', uselist=False, single_parent=True),
-    #     lazy='joined',
-    #     primaryjoin='Bucketlist_Item.list_id==Bucketlist.list_id')
 
     def __init__(self, list_name, description, created_by):
         self.list_name = list_name
@@ -171,24 +128,11 @@ class Bucketlist_Item(db.Model):
     item_name = db.Column(db.String(20), nullable=False)
     description = db.Column(db.String(100), nullable=True)
     is_completed = db.Column(db.Boolean(), nullable=False, default=False)
-    # created_on = db.Column(db.DateTime, nullable=False,
-    #                        default=datetime.now().isoformat(
-    #                            sep=' ',
-    #                            timespec='minutes'))
+
     date_modified = db.Column(db.DateTime,
                               default=datetime.now().isoformat(
                                   sep=' ',
                                   timespec='minutes'))
-
-    # items = db.relationship('Bucketlist', backref=db.backref(
-    #     'bucketlist',
-    #     # cascade='delete-orphan',
-    #     uselist=False,
-    #     single_parent=True
-    # ),
-    #     lazy='joined',
-    #     # primaryjoin='Bucketlist.list_id'=='Bucketlist_Item.list_id'
-    # )
 
     def __init__(self, item_name, description, list_id):
         self.item_name = item_name

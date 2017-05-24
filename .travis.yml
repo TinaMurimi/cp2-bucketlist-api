@@ -5,7 +5,26 @@ python:
 env:
   - SECRET_KEY='nBvb80W09RNCVKJVCVBUIvbvb$hbv&$b_vbvksv'
   - SQLALCHEMY_DATABASE_URI='postgresql://postgres@localhost/bucketlist'
+  env:
+  - TEST_MOBILE=True  DB=postgresql TRAVIS_NODE_VERSION="4"
+  - TEST_MOBILE=False DB=postgresql TRAVIS_NODE_VERSION="4"
+
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install:
+  # Install requirements
+  "pip install -r requirements.txt"
+
+# Create test databases
+before_script:
+  - if [[ "$DB" = "postgresql" ]]; then psql -c 'DROP DATABASE IF EXISTS bucketlist_test;' -U postgres; fi
+  - if [[ "$DB" = "postgresql" ]]; then psql -c 'CREATE DATABASE bucketlist_test;' -U postgres; fi
+
 # command to run tests
-script: pytest
+script:
+  # Formatting
+  - pep8 bucketlist
+
+  # Code coverage
+  - nosetests --with-coverage
+
+

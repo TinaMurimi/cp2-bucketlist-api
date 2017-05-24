@@ -9,7 +9,7 @@ import sys
 from bucketlist.app import app
 
 
-@app.route('/')
+@app.route('')
 def index():
     return "Welcome to BucketList Application API"
 

@@ -465,7 +465,7 @@ class BucketlistItemAPI(Resource):
         Attributes:
         - item_name (required): A string representing the bucketlist item's name
         - description (optional): A string representing the bucketlist item's description
-        - list_id (required): An foreign key from table Bucketlist representing bucketlist id
+        - list_id (required): A foreign key from table Bucketlist representing bucketlist id
         """
 
         # Validate user to perform CRUD action on a bucketlist

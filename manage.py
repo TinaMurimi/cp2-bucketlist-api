@@ -30,13 +30,14 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
+
 @manager.command
 def createdb():
     """Creates the db tables"""
 
     os.system('createdb bucketlist_test owner postgres')
     os.system('createdb bucketlist owner postgres')
-    
+
     db.create_all()
     db.session.commit()
 
@@ -107,18 +108,6 @@ def createadmin():
         return {'error': str(error)}, 400
         db.rollback()
 
-
-# Check if DB url is specified
-if app.config['SQLALCHEMY_DATABASE_URI'] is None:
-    print ("\nNeed database config\n")
-    sys.exit(1)
-else:
-    print (colored("\nDatabase used:--->", "cyan"),
-           app.config['SQLALCHEMY_DATABASE_URI'], "\n")
-
-
-print(colored("\nJSON_SORT_KEYS used:--->", "cyan"),
-      app.config['JSON_SORT_KEYS'], "\n")
 
 if __name__ == '__main__':
     manager.run()

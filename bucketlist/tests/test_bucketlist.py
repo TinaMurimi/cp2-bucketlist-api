@@ -157,8 +157,9 @@ class BucketlistTestCase(unittest.TestCase):
         have a match
         """
 
-        response = self.client().get('bucketlist_api/v1.0/bucketlists?q=bucketlist',
-                                     headers=self.header)
+        response = self.client().get(
+            'bucketlist_api/v1.0/bucketlists?q=bucketlist',
+            headers=self.header)
         self.assertEqual(response.status_code, 404)
         self.assertIn(
             'No bucketlists with the word bucketlist',

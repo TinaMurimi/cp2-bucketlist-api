@@ -197,7 +197,7 @@ class UserTestCase(unittest.TestCase):
             data=self.new_details,
             headers=self.header)
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 409)
         self.assertIn('Username or email already exist', str(response.data))
 
     def test_put_password_length(self):

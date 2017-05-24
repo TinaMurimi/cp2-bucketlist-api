@@ -1,8 +1,6 @@
-import datetime
 import re
 
-from flask import Flask, g, jsonify, make_response, request
-from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
+from flask import g, jsonify, make_response, request
 from flask_restful import (
     Resource,
     reqparse
@@ -11,11 +9,7 @@ from flask_restful import (
 from bucketlist.resources.authentication import (generate_auth_token,
                                                  verify_auth_token)
 from bucketlist.app.models import db, User, Bucketlist, Bucketlist_Item
-from bucketlist.app.serializer import (marshmallow,
-                                       UserSchema,
-                                       BucketlistSchema,
-                                       BucketlistItemSchema
-                                       )
+from bucketlist.app.serializer import UserSchema
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -77,8 +71,8 @@ class UserRegistrationAPI(Resource):
             return {'Message': 'New user registered successfully'}, 201
 
         except Exception as error:
-            return {'Error': str(error)}, 400
             db.rollback()
+            return {'Error': str(error)}, 400
 
 
 class AllRegisteredUsers(Resource):

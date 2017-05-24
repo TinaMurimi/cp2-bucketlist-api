@@ -1,6 +1,5 @@
 from flask_marshmallow import Marshmallow
-from flask_sqlalchemy import SQLAlchemy
-from marshmallow import Schema, fields
+# from marshmallow import Schema, fields
 
 from bucketlist.app.models import User, Bucketlist, Bucketlist_Item
 

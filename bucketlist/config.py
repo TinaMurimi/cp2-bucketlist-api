@@ -1,6 +1,5 @@
 # This file contains most of the configuration variables that the app needs
 
-import logging
 import os
 
 BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))

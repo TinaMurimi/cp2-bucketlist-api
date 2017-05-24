@@ -1,18 +1,14 @@
 import json
 
 from datetime import datetime
-from flask import Flask, g, jsonify, request
+from flask import g, jsonify, request
 from flask_restful import Resource, reqparse
 from werkzeug.wrappers import Response
 
 
-from bucketlist.app.models import auth, db, User, Bucketlist, Bucketlist_Item
+from bucketlist.app.models import db, Bucketlist, Bucketlist_Item
 from bucketlist.resources.authentication import verify_auth_token
-from bucketlist.app.serializer import (
-    UserSchema,
-    BucketlistSchema,
-    BucketlistItemSchema
-)
+from bucketlist.app.serializer import BucketlistSchema, BucketlistItemSchema
 
 bucketlist_schema = BucketlistSchema()
 bucketlists_schema = BucketlistSchema(many=True)
@@ -68,7 +64,7 @@ class BucketlistAPI(Resource):
                 }, 400
 
             if bucketlists:
-                return {'Error': 'Bucketlist already exists'}, 400
+                return {'Error': 'Bucketlist already exists'}, 409
 
             if _description:
                 _description = _description.capitalize().strip()
@@ -87,8 +83,8 @@ class BucketlistAPI(Resource):
             }, 201
 
         except Exception as error:
-            return {'Error': str(error)}, 400
             db.rollback()
+            return {'Error': str(error)}, 400
 
     def get(self):
         """
@@ -155,7 +151,7 @@ class BucketlistAPI(Resource):
             if not bucketlists.items:
                 return {
                     'Error': 'No bucketlists with the word {}'.format(_query)
-                }, 400
+                }, 404
 
         else:
             bucketlists = Bucketlist.query.filter(
@@ -169,7 +165,7 @@ class BucketlistAPI(Resource):
             if not bucketlists.items:
                 return {
                     'Error': 'No bucketlists available for current user'
-                }, 400
+                }, 404
 
         if bucketlists.has_prev:
             prev_page = request.url_root + 'bucketlist_api/v1.0/bucketlists' \
@@ -519,8 +515,8 @@ class BucketlistItemAPI(Resource):
             }, 201
 
         except Exception as error:
-            return {'Error': str(error)}, 400
             db.rollback()
+            return {'Error': str(error)}, 400
 
     def get(self, id):
         """

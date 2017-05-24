@@ -11,12 +11,8 @@ import sys
 
 from flask_script import Manager, Option
 from flask_migrate import Migrate, MigrateCommand
-from flask_restful import Api
-from flask_sqlalchemy import SQLAlchemy
 from getpass import getpass
 from migrate.versioning import api
-
-from termcolor import colored
 
 from bucketlist.app import app
 from bucketlist.app.models import db, User
@@ -105,8 +101,8 @@ def createadmin():
         print('New Admin user registered successfully')
 
     except Exception as error:
-        return {'error': str(error)}, 400
         db.rollback()
+        return {'error': str(error)}, 400
 
 
 if __name__ == '__main__':

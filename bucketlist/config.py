@@ -3,8 +3,6 @@
 import logging
 import os
 
-from flask import Flask
-
 BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 

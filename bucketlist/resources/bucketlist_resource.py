@@ -1,14 +1,14 @@
 import json
 
 from datetime import datetime
-from flask import Flask, g, jsonify, make_response, request
-from flask_restful import Api, Resource, reqparse
+from flask import Flask, g, jsonify, request
+from flask_restful import Resource, reqparse
 from werkzeug.wrappers import Response
 
 
 from bucketlist.app.models import auth, db, User, Bucketlist, Bucketlist_Item
 from bucketlist.resources.authentication import verify_auth_token
-from bucketlist.app.serializer import (marshmallow,
+from bucketlist.app.serializer import (
                                        UserSchema,
                                        BucketlistSchema,
                                        BucketlistItemSchema
@@ -88,7 +88,6 @@ class BucketlistAPI(Resource):
 
         except Exception as error:
             return {'Error': str(error)}, 400
-            db.session.flush()
             db.rollback()
 
     def get(self):
@@ -516,7 +515,6 @@ class BucketlistItemAPI(Resource):
 
         except Exception as error:
             return {'Error': str(error)}, 400
-            db.session.flush()
             db.rollback()
 
     def get(self, id):

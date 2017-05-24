@@ -6,7 +6,7 @@
 import os
 import re
 
-from flask_script import Command, Manager, Option
+from flask_script import Manager, Option
 from flask_migrate import Migrate, MigrateCommand
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
@@ -26,10 +26,11 @@ manager.add_command('db', MigrateCommand)
 
 @manager.command
 def createdb():
+    """Creates the db tables"""
 
     os.system('createdb bucketlist_test owner postgres')
     os.system('createdb bucketlist owner postgres')
-    """Creates the db tables"""
+    
     db.create_all()
     db.session.commit()
 

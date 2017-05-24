@@ -1,10 +1,8 @@
 # These are the models for the application
 
-import jwt
-
-from datetime import date, datetime
+from datetime import datetime
 from flask_bcrypt import Bcrypt
-from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
+from flask_httpauth import HTTPBasicAuth
 from flask_sqlalchemy import Model, SQLAlchemy
 
 from sqlalchemy import DateTime, Column

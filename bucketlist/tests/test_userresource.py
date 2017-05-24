@@ -4,7 +4,7 @@ import json
 from flask.testing import FlaskClient
 
 from bucketlist.app import ConfigureApp
-from bucketlist.app.models import db, User
+from bucketlist.app.models import db
 
 
 class UserTestCase(unittest.TestCase):

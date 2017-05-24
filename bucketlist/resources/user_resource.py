@@ -1,6 +1,4 @@
 import datetime
-import json
-import jwt
 import re
 
 from flask import Flask, g, jsonify, make_response, request
@@ -9,7 +7,6 @@ from flask_restful import (
     Resource,
     reqparse
 )
-from functools import wraps
 
 from bucketlist.resources.authentication import (generate_auth_token,
                                                  verify_auth_token)
@@ -81,7 +78,6 @@ class UserRegistrationAPI(Resource):
 
         except Exception as error:
             return {'Error': str(error)}, 400
-            db.session.flush()
             db.rollback()
 
 
@@ -101,8 +97,6 @@ class AllRegisteredUsers(Resource):
             return {'Error': 'Unauthorised access'}, 401
 
         users = User.query.order_by(User.username).all()
-
-        user_details = []
 
         if not users:
             return {'Warning': 'No users registered'}, 204
@@ -307,23 +301,6 @@ class UserLoginAPI(Resource):
 
         return {'Message': 'Welcome {}'.format(_username),
                 'Token': _token}, 200
-
-    def get(self):
-        # The method is not allowed for the requested URL.
-        return {'Error': 'Method not allowed for login'}, 405
-
-    def put(self):
-        # The method is not allowed for the requested URL.
-        return {'Error': 'Method not allowed for login'}, 405
-
-    def delete(self):
-        # The method is not allowed for the requested URL.
-        return {'Error': 'Method not allowed for login'}, 405
-
-
-class UserLogoutAPI(Resource):
-    def post(self):
-        pass
 
     def get(self):
         # The method is not allowed for the requested URL.

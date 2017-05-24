@@ -18,7 +18,6 @@ from bucketlist.resources.user_resource import (UserRegistrationAPI,
                                                 AllRegisteredUsers,
                                                 SingleUserAPI,
                                                 UserLoginAPI,
-                                                UserLogoutAPI,
                                                 )
 from bucketlist.resources.bucketlist_resource import (
     BucketlistAPI,
@@ -74,9 +73,6 @@ def ConfigureApp(config_name):
     api.add_resource(UserLoginAPI,
                      '/bucketlist_api/v1.0/auth/login',
                      endpoint='login')
-    api.add_resource(UserLogoutAPI,
-                     '/bucketlist_api/v1.0/auth/logout',
-                     endpoint='logout')
 
     api.add_resource(BucketlistAPI,
                      '/bucketlist_api/v1.0/bucketlists',

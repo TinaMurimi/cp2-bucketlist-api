@@ -95,7 +95,7 @@ class BucketlistTestCase(unittest.TestCase):
             db.drop_all()
 
     def test_bucketlist_creation(self):
-        """Test user can create a bucletlist"""
+        """Test user can create a bucketlist"""
 
         # Bucketlist creation
         self.diving = {
@@ -159,7 +159,7 @@ class BucketlistTestCase(unittest.TestCase):
 
         response = self.client().get('bucketlist_api/v1.0/bucketlists?q=bucketlist',
                                      headers=self.header)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 404)
         self.assertIn(
             'No bucketlists with the word bucketlist',
             str(response.data))

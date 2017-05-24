@@ -9,10 +9,10 @@ from werkzeug.wrappers import Response
 from bucketlist.app.models import auth, db, User, Bucketlist, Bucketlist_Item
 from bucketlist.resources.authentication import verify_auth_token
 from bucketlist.app.serializer import (
-                                       UserSchema,
-                                       BucketlistSchema,
-                                       BucketlistItemSchema
-                                       )
+    UserSchema,
+    BucketlistSchema,
+    BucketlistItemSchema
+)
 
 bucketlist_schema = BucketlistSchema()
 bucketlists_schema = BucketlistSchema(many=True)
@@ -152,6 +152,11 @@ class BucketlistAPI(Resource):
                        _limit,
                        False)
 
+            if not bucketlists.items:
+                return {
+                    'Error': 'No bucketlists with the word {}'.format(_query)
+                }, 400
+
         else:
             bucketlists = Bucketlist.query.filter(
                 Bucketlist.created_by == g.current_user
@@ -161,10 +166,10 @@ class BucketlistAPI(Resource):
                        _limit,
                        False)
 
-        if not bucketlists.items:
-            return {
-                'Error': 'No bucketlists with the word {}'.format(_query)
-            }, 400
+            if not bucketlists.items:
+                return {
+                    'Error': 'No bucketlists available for current user'
+                }, 400
 
         if bucketlists.has_prev:
             prev_page = request.url_root + 'bucketlist_api/v1.0/bucketlists' \

@@ -52,7 +52,7 @@ class UserRegistrationAPI(Resource):
             _username) | User.email.ilike(_userEmail)).first()
 
         if users:
-            return {'Error': 'Username or email already exists'}, 400
+            return {'Error': 'Username or email already exists'}, 409
 
         email_regex = re.compile(
             r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
@@ -150,7 +150,7 @@ class SingleUserAPI(Resource):
 
         # Check is user exists
         if not users:
-            return {'Error': 'User does not exist'}, 404
+            return {'Error': 'User does not exist'}, 400
 
         response = user_schema.jsonify(users)
         response.status_code = 200
@@ -173,7 +173,7 @@ class SingleUserAPI(Resource):
             return {'Error': 'Unauthorised access'}, 401
 
         if not user:
-            return {'Error': 'User does not exist'}, 404
+            return {'Error': 'User does not exist'}, 400
 
         _username = args['username']
         _userPassword = args['password']
@@ -190,7 +190,7 @@ class SingleUserAPI(Resource):
                     if users.username == _username:
                         return {'Error': 'Username not modified'}, 304
 
-                    return {'Error': 'Username or email already exists'}, 400
+                    return {'Error': 'Username or email already exists'}, 409
 
                 user.username = _username
 
@@ -241,7 +241,7 @@ class SingleUserAPI(Resource):
         users = User.query.filter_by(user_id=id).first()
 
         if not users:
-            return {'Error': 'User does not exist'}, 404
+            return {'Error': 'User does not exist'}, 400
 
         _username = users.username
 

@@ -131,7 +131,7 @@ class BucketlistTestCase(unittest.TestCase):
         response = self.client().post('/bucketlist_api/v1.0/bucketlists',
                                       data=self.paragliding,
                                       headers=self.header)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 409)
         self.assertIn(
             'Bucketlist already exists',
             str(response.data))

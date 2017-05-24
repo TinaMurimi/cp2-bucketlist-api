@@ -91,7 +91,7 @@ class UserTestCase(unittest.TestCase):
 
         response = self.client().post('/bucketlist_api/v1.0/auth/register',
                                       data=self.user)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 409)
         self.assertIn('Username or email already exists', str(response.data))
 
     def test_email_duplication(self):
@@ -104,7 +104,8 @@ class UserTestCase(unittest.TestCase):
                      }
         response = self.client().post('/bucketlist_api/v1.0/auth/register',
                                       data=self.user)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 409)
+        self.assertIn('Username or email already exists', str(response.data))
 
     def test_username_validation(self):
         """Test all fields are required"""

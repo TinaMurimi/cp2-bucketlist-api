@@ -84,7 +84,7 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 
 * In bucketlist/app/__init__.py, see all the URIs for different feature. Copy the URI in Postman, eg:
 
-        [http://127.0.0.1:5000/bucketlist_api/v1.0/auth/login](url)
+        http://127.0.0.1:5000/bucketlist_api/v1.0/auth/login
         
        
 **AN IMAGE HERE OF THE OUTPUT***

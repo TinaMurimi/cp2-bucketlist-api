@@ -21,6 +21,7 @@ from termcolor import colored
 from bucketlist.app import app
 from bucketlist.app.models import db, User
 
+# Setting a logger in the application and making it print to stdout
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
 

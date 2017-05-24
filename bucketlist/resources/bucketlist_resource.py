@@ -4,12 +4,14 @@ from datetime import datetime
 from flask import Flask, g, jsonify, make_response, request
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-from flask_restful import Api, fields, marshal, marshal_with, Resource, reqparse
+from flask_restful import Api, Resource, reqparse
 from functools import wraps
 from sqlalchemy import func
+from werkzeug.wrappers import Request, Response
+
 
 from bucketlist.app.models import auth, db, User, Bucketlist, Bucketlist_Item
-from bucketlist.resources.views import verify_auth_token
+from bucketlist.resources.authentication import verify_auth_token
 from bucketlist.app.serializer import (marshmallow,
                                        UserSchema,
                                        BucketlistSchema,
@@ -23,15 +25,15 @@ bucketlistitem_schema = BucketlistItemSchema()
 bucketlistitems_schema = BucketlistItemSchema(many=True)
 
 
-bucketlist_fields = {
-    'id': fields.Integer(),
-    'name': fields.String(),
-    'description': fields.String(),
-    'date_created': fields.DateTime(),
-    'date_modified': fields.DateTime(),
-    'created_by': fields.Integer(),
-    'done': fields.Boolean(),
-}
+# bucketlist_fields = {
+#     'id': fields.Integer,
+#     'name': fields.String,
+#     'description': fields.String,
+#     'date_created': fields.DateTime,
+#     'date_modified': fields.DateTime,
+#     'created_by': fields.Integer,
+#     'done': fields.Boolean,
+# }
 
 
 class BucketlistAPI(Resource):
@@ -104,7 +106,7 @@ class BucketlistAPI(Resource):
             db.session.flush()
             db.rollback()
 
-    # @marshal_with(bucketlist_fields, envelope='bucketlists')
+    # @marshal_with(bucketlist_fields, envelope="bucketlists")
     def get(self):
         """
         Returns a list of all bucketlists for a particular user
@@ -152,6 +154,9 @@ class BucketlistAPI(Resource):
         _page = args['page']
         _limit = args['limit']
 
+        if _limit and _limit > 100:
+            return {'Error': 'Maximum number of results is 100'}, 400
+
         if _query:
             _query = _query.strip()
 
@@ -177,46 +182,40 @@ class BucketlistAPI(Resource):
             return {
                 'Error': 'No bucketlists with the word {}'.format(_query)
             }, 400
+        # else:
+        #     return {
+        #         'Message': str(bucketlists.items[0].list_name)}, 200
 
         if bucketlists.has_prev:
-            prev_page = request.url_root + 'api/v1.0/bucketlists/' \
+            prev_page = request.url_root + 'bucketlist_api/v1.0/bucketlists' \
                 + '?page=' + str(_page - 1) + '&limit=' + str(_limit)
         else:
             prev_page = 'None'
 
         if bucketlists.has_next:
-            next_page = request.url_root + 'api/v1.0/bucketlists/' \
+            next_page = request.url_root + 'bucketlist_api/v1.0/bucketlists' \
                 + '?page=' + str(_page + 1) + '&limit=' + str(_limit)
         else:
             next_page = 'None'
 
-        # response = bucketlists_schema.jsonify(bucketlists.items)
-        # response.status_code = 200
-        # return response
-
-        result = bucketlists_schema.jsonify(bucketlists.items)
-
-        response = {
+        result = bucketlists_schema.dump(list(bucketlists.items))
+        pages = {
+            "status_code": 200, 
             'message': {
-                'next_page': next_page,
                 'prev_page': prev_page,
+                'next_page': next_page,
                 'total_pages': bucketlists.pages
             },
-            'bucketlists': result
+            'bucketlists': result.data
         }
+        
+        response = json.dumps(pages, sort_keys=False)
 
-        return result
-        # return (
-        #     {
-        #         'message':
-        #         {
-        #             'next_page': next_page,
-        #             'prev_page': prev_page,
-        #             'total_pages': bucketlists.pages
-        #         },
-        #         'bucketlists': bucketlists_schema.jsonify(bucketlists.items)
-        #     }, 200
-        # )
+        return Response(
+                response,
+                status=200,
+                mimetype='text/json'
+            )
 
 
 class SingleBucketlistAPI(Resource):

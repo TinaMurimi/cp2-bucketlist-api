@@ -28,6 +28,10 @@ from bucketlist.resources.bucketlist_resource import (
 )
 
 
+
+
+
+
 def ConfigureApp(config_name):
     # When instance_relative_config=True if we create our app with the Flask()
     # call app.config.from_pyfile() will load the specified file from the
@@ -54,6 +58,8 @@ def ConfigureApp(config_name):
 
     # TO JSON from reordering
     app.config['JSON_SORT_KEYS'] = False
+    # app.config['JSON_ADD_STATUS'] = False
+    # app.config['JSON_DATETIME_FORMAT'] = '%d/%m/%Y %H:%M:%S'
 
     # Bind db to app
     db.init_app(app)

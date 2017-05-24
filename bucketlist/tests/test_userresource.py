@@ -222,5 +222,5 @@ class UserTestCase(unittest.TestCase):
         response = self.client().delete(
             '/bucketlist_api/v1.0/user/1',
             headers=self.header)
-        # self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 401)
         self.assertIn('Unauthorised access', str(response.data))

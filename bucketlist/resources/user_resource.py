@@ -4,17 +4,17 @@ import jwt
 import re
 
 from flask import Flask, g, jsonify, make_response, request
-from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 from flask_restful import (Api,
-                           fields,
-                           marshal,
-                           marshal_with,
+                           #    fields,
+                           #    marshal,
+                           #    marshal_with,
                            Resource,
                            reqparse
                            )
 from functools import wraps
 
-from bucketlist.resources.views import generate_auth_token, verify_auth_token
+from bucketlist.resources.authentication import (generate_auth_token,
+                                                 verify_auth_token)
 from bucketlist.app.models import db, User, Bucketlist, Bucketlist_Item
 from bucketlist.app.serializer import (marshmallow,
                                        UserSchema,

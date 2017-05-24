@@ -83,10 +83,10 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 **AN IMAGE HERE OF THE OUTPUT***
 
 * In bucketlist/app/__init__.py, see all the URIs for different feature. Copy the URI in Postman, eg:
-        ```
-        http://127.0.0.1:5000/bucketlist_api/v1.0/auth/login
-        ```
 
+        [http://127.0.0.1:5000/bucketlist_api/v1.0/auth/login](url)
+        
+       
 **AN IMAGE HERE OF THE OUTPUT***
 
 **Deploying to Heroku**
@@ -112,9 +112,9 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 
 * ..... and add the following
 
-        ```
+
         web: gunicorn --workers 4 --bind "0.0.0.0:$PORT" flask_app:app --log-file -
-        ```
+
 
 * Create a runtime.txt file
 
@@ -122,9 +122,8 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 
 * ..... and add the following
 
-        ```
         python-3.6.0 
-        ```
+
 
 * Now deploy your code:
 

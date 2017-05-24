@@ -109,7 +109,7 @@ class BucketlistAPI(Resource):
         if not bucketlists:
             return {
                 'Warning': 'No bucketlists available for current user'
-            }, 204
+            }, 400
 
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument(
@@ -181,7 +181,6 @@ class BucketlistAPI(Resource):
 
         result = bucketlists_schema.dump(list(bucketlists.items))
         pages = {
-            "status_code": 200,
             'message': {
                 'prev_page': prev_page,
                 'next_page': next_page,
@@ -273,7 +272,13 @@ class SingleBucketlistAPI(Resource):
 
                 bucketlist_details['items'] = item_details
 
-            return bucketlist_details, 200
+            response = json.dumps(bucketlist_details, sort_keys=False)
+
+            return Response(
+                response,
+                status=200,
+                mimetype='text/json'
+            )
 
         except Exception as error:
             db.session.rollback()

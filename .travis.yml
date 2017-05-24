@@ -5,7 +5,6 @@ python:
 env:
   - SECRET_KEY='nBvb80W09RNCVKJVCVBUIvbvb$hbv&$b_vbvksv'
   - SQLALCHEMY_DATABASE_URI='postgresql://postgres@localhost/bucketlist'
-  env:
   - TEST_MOBILE=True  DB=postgresql TRAVIS_NODE_VERSION="4"
   - TEST_MOBILE=False DB=postgresql TRAVIS_NODE_VERSION="4"
 

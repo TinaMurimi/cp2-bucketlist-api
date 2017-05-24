@@ -68,13 +68,11 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 
 * Add the following to the file
 
-        ```
         workon <environment_name>
         export FLASK_APP="manage.py"
         export SECRET_KEY="Your secret key"
         export APP_SETTINGS="development"
         export SQLALCHEMY_DATABASE_URI="postgresql://postgres@localhost/bucketlist"
-        ```
 
 **To run the application**
 

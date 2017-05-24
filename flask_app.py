@@ -8,9 +8,11 @@ import sys
 
 from bucketlist.app import app
 
+
 @app.route('/')
 def index():
-	return "Yo, it's working!"
+    return "Welcome to BucketList Application API"
+
 
 # Setting a logger in the application and making it print to stdout
 app.logger.addHandler(logging.StreamHandler(sys.stdout))

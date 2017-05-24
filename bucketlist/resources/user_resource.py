@@ -4,13 +4,11 @@ import jwt
 import re
 
 from flask import Flask, g, jsonify, make_response, request
-from flask_restful import (Api,
-                           #    fields,
-                           #    marshal,
-                           #    marshal_with,
-                           Resource,
-                           reqparse
-                           )
+from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
+from flask_restful import (
+    Resource,
+    reqparse
+)
 from functools import wraps
 
 from bucketlist.resources.authentication import (generate_auth_token,

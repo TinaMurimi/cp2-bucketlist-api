@@ -2,12 +2,8 @@ import json
 
 from datetime import datetime
 from flask import Flask, g, jsonify, make_response, request
-from flask_bcrypt import Bcrypt
-from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 from flask_restful import Api, Resource, reqparse
-from functools import wraps
-from sqlalchemy import func
-from werkzeug.wrappers import Request, Response
+from werkzeug.wrappers import Response
 
 
 from bucketlist.app.models import auth, db, User, Bucketlist, Bucketlist_Item
@@ -61,7 +57,8 @@ class BucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) != int:
+        # if type(g.current_user) != int:
+        if not isinstance(g.current_user, int):
             return g.current_user
 
         try:
@@ -116,7 +113,8 @@ class BucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) != int:
+        # if type(g.current_user) != int:
+        if not isinstance(g.current_user, int):
             return g.current_user
 
         bucketlists = Bucketlist.query.filter_by(
@@ -200,7 +198,7 @@ class BucketlistAPI(Resource):
 
         result = bucketlists_schema.dump(list(bucketlists.items))
         pages = {
-            "status_code": 200, 
+            "status_code": 200,
             'message': {
                 'prev_page': prev_page,
                 'next_page': next_page,
@@ -208,14 +206,14 @@ class BucketlistAPI(Resource):
             },
             'bucketlists': result.data
         }
-        
+
         response = json.dumps(pages, sort_keys=False)
 
         return Response(
-                response,
-                status=200,
-                mimetype='text/json'
-            )
+            response,
+            status=200,
+            mimetype='text/json'
+        )
 
 
 class SingleBucketlistAPI(Resource):
@@ -247,7 +245,8 @@ class SingleBucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) != int:
+        # if type(g.current_user) != int:
+        if not isinstance(g.current_user, int):
             return g.current_user
 
         # Validate user to perform CRUD action on a bucketlist

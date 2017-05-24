@@ -1,5 +1,4 @@
 import unittest
-import os
 import json
 
 from flask.testing import FlaskClient

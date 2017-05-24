@@ -2,8 +2,6 @@ import datetime
 import jwt
 import os
 
-import bucketlist.app
-
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 

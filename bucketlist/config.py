@@ -4,9 +4,6 @@ import logging
 import os
 
 from flask import Flask
-from flask_compress import Compress
-
-# from .models import User, Bucketlist
 
 BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 

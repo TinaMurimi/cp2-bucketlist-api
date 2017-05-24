@@ -1,11 +1,8 @@
 import unittest
-import os
 import json
 
-from flask.testing import FlaskClient
-
 from bucketlist.app import ConfigureApp
-from bucketlist.app.models import db, User, Bucketlist, Bucketlist_Item
+from bucketlist.app.models import db
 
 
 class BucketlistTestCase(unittest.TestCase):

@@ -17,9 +17,6 @@ from termcolor import colored
 
 from bucketlist.app import app
 from bucketlist.app.models import db, User
-from bucketlist.resources.user_resource import (UserRegistrationAPI,
-                                                SingleUserAPI
-                                                )
 
 
 migrate = Migrate(app, db)
@@ -56,11 +53,11 @@ def createdb():
 
 @manager.command
 def dropdb():
-    os.system('dropdb bucketlist_test')
-    os.system('dropdb bucketlist')
-
     """Drops the db tables"""
     db.drop_all()
+
+    os.system('dropdb bucketlist_test')
+    os.system('dropdb bucketlist')
 
 
 @manager.command
@@ -104,7 +101,7 @@ def createadmin():
 
     except Exception as error:
         return {'error': str(error)}, 400
-        db.session.flush()
+        # db.session.flush()
         db.rollback()
 
 

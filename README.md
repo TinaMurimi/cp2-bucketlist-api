@@ -1,7 +1,9 @@
-# cp2-bucketlist-api
+# CP2A - BucketList Application API
 
-# What does this PR do?
-Modelling a room allocation system for one of Andela’s facilities called Amity
+# Problem Description
+The BucketList Application API is an online Bucket List service using Flask.
+
+According to Merriam-Webster Dictionary, a Bucket List is a list of things that one has not done before but wants to do before dying.
 
 # Building blocks
 1. Python 3
@@ -65,6 +67,7 @@ Modelling a room allocation system for one of Andela’s facilities called Amity
         $ touch .env
 
 * Add the following to the file
+
         ```
         workon <environment_name>
         export FLASK_APP="manage.py"

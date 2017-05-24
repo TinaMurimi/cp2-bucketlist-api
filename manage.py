@@ -3,8 +3,11 @@
 # This won’t be used in production, but it will see a lot of mileage in
 # development.
 
+import logging
 import os
 import re
+import sys
+
 
 from flask_script import Manager, Option
 from flask_migrate import Migrate, MigrateCommand
@@ -18,6 +21,8 @@ from termcolor import colored
 from bucketlist.app import app
 from bucketlist.app.models import db, User
 
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 migrate = Migrate(app, db)
 

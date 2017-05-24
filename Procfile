@@ -1,2 +1,2 @@
 # web: python manage.py runserver --host 0.0.0.0
-web: gunicorn mamage:app --log-file -
+web: gunicorn mamage:manager --log-file -

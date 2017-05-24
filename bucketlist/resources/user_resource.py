@@ -1,6 +1,6 @@
 import re
 
-from flask import g, jsonify, make_response, request
+from flask import g, make_response, request
 from flask_restful import (
     Resource,
     reqparse

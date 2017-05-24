@@ -25,8 +25,8 @@ class BucketlistTestCase(unittest.TestCase):
                      'password': 'sfnbsdfiruio3r',
                      }
 
-        lena = self.client().post('/bucketlist_api/v1.0/auth/register',
-                                  data=self.user)
+        self.client().post('/bucketlist_api/v1.0/auth/register',
+                           data=self.user)
 
         login = self.client().post('/bucketlist_api/v1.0/auth/login',
                                    data=self.user)
@@ -42,8 +42,8 @@ class BucketlistTestCase(unittest.TestCase):
                     'password': 'sfnbsdfiruio3r',
                     }
 
-        don = self.client().post('/bucketlist_api/v1.0/auth/register',
-                                 data=self.don)
+        self.client().post('/bucketlist_api/v1.0/auth/register',
+                           data=self.don)
 
         login_don = self.client().post('/bucketlist_api/v1.0/auth/login',
                                        data=self.don)
@@ -62,12 +62,12 @@ class BucketlistTestCase(unittest.TestCase):
             'description': 'Go swimming with dolphins in Watamu, Kenya',
         }
 
-        paragliding = self.client().post('/bucketlist_api/v1.0/bucketlists',
-                                         data=self.paragliding,
-                                         headers=self.header)
-        swimming = self.client().post('/bucketlist_api/v1.0/bucketlists',
-                                      data=self.swimming,
-                                      headers=self.header)
+        self.client().post('/bucketlist_api/v1.0/bucketlists',
+                           data=self.paragliding,
+                           headers=self.header)
+        self.client().post('/bucketlist_api/v1.0/bucketlists',
+                           data=self.swimming,
+                           headers=self.header)
 
         # Bucketlist item creation
         self.paragliding_item = {
@@ -78,7 +78,7 @@ class BucketlistTestCase(unittest.TestCase):
             'item': 'Go swimming',
         }
 
-        response = self.client().post(
+        self.client().post(
             '/bucketlist_api/v1.0/bucketlists/1/items',
             data=self.paragliding_item,
             headers=self.header)

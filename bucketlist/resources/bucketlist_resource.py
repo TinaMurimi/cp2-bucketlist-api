@@ -1,7 +1,7 @@
 import json
 
 from datetime import datetime
-from flask import g, jsonify, request
+from flask import g, request
 from flask_restful import Resource, reqparse
 from werkzeug.wrappers import Response
 

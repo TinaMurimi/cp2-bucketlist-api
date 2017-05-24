@@ -9,7 +9,7 @@ import re
 import sys
 
 
-from flask_script import Manager, Option
+from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from getpass import getpass
 from migrate.versioning import api

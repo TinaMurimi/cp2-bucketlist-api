@@ -3,20 +3,9 @@
 # What does this PR do?
 Modelling a room allocation system for one of Andela’s facilities called Amity
 
-# Description of Task to be completed
-1. Print message if no people or rooms exist when list functions are called
-2. Restrict adding people with similar names
-3. Allow allocation of people who had no previous allocations
-4. Allow for allocation to a specified person
-5. Print message if no allocations exist when the print_allocations function is called
-6. Implement tearDown in tests
-7. Docstring consistency
-8. Remove unused code
-9. SETTINGS.py for root directory
-
 # Building blocks
 1. Python 3
-2. SQLite3
+2. Postgresql
 
 # How should this be manually tested?
 

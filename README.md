@@ -120,15 +120,19 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 * .....or alternatively
 
         $ flask run
+        
+<img width="681" alt="screen shot 2017-05-25 at 11 31 54" src="https://cloud.githubusercontent.com/assets/26300276/26443077/aa8e2704-413f-11e7-8131-039682641868.png">
 
-**AN IMAGE HERE OF THE OUTPUT***
 
 * In bucketlist/app/__init__.py, see all the URIs for different feature. Copy the URI in Postman, eg:
 
         http://127.0.0.1:5000/bucketlist_api/v1.0/auth/login
         
        
-**AN IMAGE HERE OF THE OUTPUT***
+
+<img width="1116" alt="screen shot 2017-05-25 at 11 52 19" src="https://cloud.githubusercontent.com/assets/26300276/26443146/ebb64464-413f-11e7-839d-f36a9022fe54.png">
+
+
 
 **Deploying to Heroku**
 

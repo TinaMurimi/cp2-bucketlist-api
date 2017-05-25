@@ -109,7 +109,7 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
         $ python manage.py db migrate
         $ python manage.py db upgrade
 
-$ Create an Admin user
+* Create an Admin user
 
         $ python manage.py createuser
 

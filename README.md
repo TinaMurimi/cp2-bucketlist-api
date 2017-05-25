@@ -133,6 +133,7 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 <img width="1116" alt="screen shot 2017-05-25 at 11 52 19" src="https://cloud.githubusercontent.com/assets/26300276/26443146/ebb64464-413f-11e7-839d-f36a9022fe54.png">
 
 
+<img width="1410" alt="screen shot 2017-05-25 at 12 51 27" src="https://cloud.githubusercontent.com/assets/26300276/26445255/2da90a20-4148-11e7-89b8-64090817b481.png">
 
 **Deploying to Heroku**
 
@@ -206,11 +207,3 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 * To check the coverage
 
         $ nosetests --with-coverage
-
-# Project Demo
-[https://asciinema.org/a/119230](url)
-
-# Screenshots
-This is a cli application. Run the main.py
-
-<img width="863" alt="amity screenshot" src="https://cloud.githubusercontent.com/assets/26300276/25145960/19a00d42-247b-11e7-95e1-fda23e5be435.png">

@@ -5,6 +5,47 @@ The BucketList Application API is an online Bucket List service using Flask.
 
 According to Merriam-Webster Dictionary, a Bucket List is a list of things that one has not done before but wants to do before dying.
 
+    api.add_resource(SingleUserAPI,
+                     '/bucketlist_api/v1.0/user/<int:id>',
+                     endpoint='single_user')
+    api.add_resource(UserLoginAPI,
+                     '',
+                     endpoint='login')
+
+    api.add_resource(BucketlistAPI,
+                     '/bucketlist_api/v1.0/bucketlists',
+                     endpoint='bucketlist')
+    api.add_resource(SingleBucketlistAPI,
+                     '/bucketlist_api/v1.0/bucketlists/<int:id>',
+                     endpoint='single_bucketlist')
+    api.add_resource(BucketlistItemAPI,
+                     '/bucketlist_api/v1.0/bucketlists/<int:id>/items',
+                     endpoint='bucketlistitem')
+    api.add_resource(
+        SingleBucketlistItemAPI,
+        '/bucketlist_api/v1.0/bucketlists/<int:id>/items/<int:item_id>',
+        endpoint='single_bucketlistitem')
+
+
+| URL Endpoint | HTTP Methods | Summary |
+| -------- | ------------- | --------- |
+| `/bucketlist_api/v1.0/auth/register` | `POST`  | Register a new user|
+| `/bucketlist_api/v1.0/users` | `GET`  | List all registered users|
+| `/bucketlist_api/v1.0/auth/login` | `POST` | Login and generate aunthentication token|
+| `/bucketlist_api/v1.0/user/<int:id>` | `GET` | Get user profile/details|
+| `/bucketlist_api/v1.0/user/<int:id>` | `PUT` | Edit user profile/details|
+| `/bucketlist_api/v1.0/user/<int:id>` | `DELETE` | Delete a user|
+| `/bucketlist_api/v1.0/bucketlists` | `POST` | Create a new Bucketlist|
+| `/bucketlist_api/v1.0/bucketlists` | `GET` | Retrieve all bucketlists for user|
+| `/bucketlist_api/v1.0/bucketlists?limit=<int:number>` | `GET` | Limit the results to retrieve per page|
+| `/bucketlist_api/v1.0/bucketlists?q=<name>` | `GET` | Search for a bucketlist with the word <name>|
+| `/bucketlist_api/v1.0/bucketlists/<int:id>` | `GET` |  Retrieve bucket list details |
+| `/bucketlist_api/v1.0/bucketlists/<int:id>` | `PUT` | Update bucket list details |
+| `/bucketlist_api/v1.0/bucketlists/<int:id>` | `DELETE` | Delete a bucket list |
+| `/bucketlist_api/v1.0/bucketlists/<int:id>/items` | `POST` |  Create items in a bucket list |
+| `/bucketlist_api/v1.0/bucketlists/<int:id>/items/<int:item_id>` | `PUT`| update a bucket list item details|
+| `/bucketlist_api/v1.0/bucketlists/<int:id>/items/<int:item_id>` | `DELETE`| Delete a item in a bucket list|
+
 # Building blocks
 1. Python 3
 2. Postgresql
@@ -74,11 +115,33 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
         export APP_SETTINGS="development"
         export SQLALCHEMY_DATABASE_URI="postgresql://postgres@localhost/bucketlist"
 
+* Export the settings
+
+        $ source .env
+
+* To view settings details use
+
+        $ echo $SECRET_KEY
+
 **To run the application**
+
+* Create the db
+
+        $ python manage.py db init
+        $ python manage.py db migrate
+        $ python manage.py db upgrade
+
+$ Create an Admin user
+
+        $ python manage.py createuser
 
 * Install postman, a Google Chrome extension, then run:
 
         $ python manage.py runserver
+
+* .....or alternatively
+
+        $ flask run
 
 **AN IMAGE HERE OF THE OUTPUT***
 
@@ -123,7 +186,6 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 * ..... and add the following
 
         python-3.6.0 
-
 
 * Now deploy your code:
 

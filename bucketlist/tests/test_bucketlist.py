@@ -143,7 +143,7 @@ class BucketlistTestCase(unittest.TestCase):
                                      headers=self.header)
         self.assertEqual(response.status_code, 200)
 
-    def test_get_search_bucketlists(self):
+    def test_search_bucketlists(self):
         """
         Test GET searching for bucket lists based on the name
         """
@@ -151,7 +151,7 @@ class BucketlistTestCase(unittest.TestCase):
                                      headers=self.header)
         self.assertEqual(response.status_code, 200)
 
-    def test_get_search(self):
+    def test_no_bucketlists_with_word(self):
         """
         Test GET searching for bucket lists based on the name that does not
         have a match
@@ -173,7 +173,7 @@ class BucketlistTestCase(unittest.TestCase):
         response = self.client().get('bucketlist_api/v1.0/bucketlists?limit=1',
                                      headers=self.header)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Paragliding', str(response.data))
+        self.assertNotIn('Dolphin swimming', str(response.data))
 
     def test_get_bucketlist_exists(self):
         """
@@ -188,7 +188,7 @@ class BucketlistTestCase(unittest.TestCase):
             'Bucketlist does not exist',
             str(response.data))
 
-    def test_put_bucketlist_exists(self):
+    def test_update_bucketlist_exists(self):
         """
         Test UPDATE operation works only if bucketlist exists
         """
@@ -206,7 +206,7 @@ class BucketlistTestCase(unittest.TestCase):
             'Bucketlist does not exist',
             str(response.data))
 
-    def test_put_bucketlist_name_unique(self):
+    def test_update_bucketlist_name_validation(self):
         """
         Test bucketlist name is unique when updating
         """
@@ -224,7 +224,7 @@ class BucketlistTestCase(unittest.TestCase):
             'Bucketlist already exists',
             str(response.data))
 
-    def test_put_bucketlist_done(self):
+    def test_update_bucketlist_to_done(self):
         """
         Test bucketlist cannot be updated to complete if items are incomplete
         """
@@ -243,7 +243,7 @@ class BucketlistTestCase(unittest.TestCase):
             'Bucketlist has incomplete items/activities',
             str(response.data))
 
-    def test_get_bucketlist(self):
+    def test_get_single_bucketlist(self):
         """
         Test user can view their bucketlist items
         """
@@ -292,7 +292,7 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertIn(
             'Unauthorised access', str(response.data))
 
-    def test_bucketlist_put_access(self):
+    def test_bucketlist_update_access(self):
         """
         Test user can only perform UPDATE operation on their bucketlist
         """
@@ -381,11 +381,12 @@ class BucketlistTestCase(unittest.TestCase):
             '/bucketlist_api/v1.0/bucketlists/1/items',
             data=self.swimming_item,
             headers=self.header_don)
+
         self.assertEqual(response_don.status_code, 401)
         self.assertIn(
             'Unauthorised access', str(response_don.data))
 
-    def test_post_bucketlist_item_name_unique(self):
+    def test_create_bucketlist_item_name_validation(self):
         """
         Test bucketlist item name is unique (POST)
         """
@@ -403,7 +404,7 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertIn(
             "Bucketlist item already exists", str(response.data))
 
-    def test_get_bucketlist_item(self):
+    def test_get_single_bucketlist_item(self):
         """
         Test user can READ single bucketlist item
         """
@@ -426,7 +427,7 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertIn('Bucketlist item does not exist', str(response.data))
 
-    def test_put_bucketlist_item_exists(self):
+    def test_update_bucketlist_item_exists(self):
         """
         Test user can UPDATE single bucketlist item that exists
         """
@@ -439,7 +440,7 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertIn('Bucketlist item does not exist', str(response.data))
 
-    def test_put_bucketlist_item(self):
+    def test_update_bucketlist_item(self):
         """
         Test bucketlist item update
         """
@@ -451,12 +452,12 @@ class BucketlistTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_put_bucketlist_item_name_unique(self):
+    def test_update_bucketlist_item_name_validation(self):
         """
         Test bucketlist item name is unique when updating
         """
 
-        swimming_item_post = self.client().post(
+        self.client().post(
             '/bucketlist_api/v1.0/bucketlists/1/items',
             data=self.swimming_item,
             headers=self.header)

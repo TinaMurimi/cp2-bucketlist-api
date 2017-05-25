@@ -1,8 +1,6 @@
 import unittest
 import json
 
-from flask.testing import FlaskClient
-
 from bucketlist.app import ConfigureApp
 from bucketlist.app.models import db
 
@@ -15,9 +13,6 @@ class UserTestCase(unittest.TestCase):
 
         # Create a test client
         self.client = self.app.test_client
-
-        # Propagate the exceptions to the test client
-        # self.client.testing = True
 
         self.user = {'username': 'Lena',
                      'email': 'lena@andela.com',

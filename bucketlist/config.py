@@ -12,11 +12,8 @@ class Config(object):
     # Configuration for the Flask-Bcrypt extension to hash user passwords
     BCRYPT_LEVEL = 12
 
-    # SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-    # export DATABASE_URL="postgresql://postgres@localhost/bucketlist"
-
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/bucketlist'
-    # Sdds significant overhead and will be disabled by default in the future
+    # Adds significant overhead and will be disabled by default in the future
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # True: SQLAlchemy will log all the statements issued to stderr

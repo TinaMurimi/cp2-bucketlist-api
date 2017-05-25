@@ -48,16 +48,11 @@ def ConfigureApp(config_name):
     # app.config.from_object(os.environ['APP_SETTINGS'])
     # $ export APP_CONFIG_FILE=/Users/tinabob/cp2-bucketlist-api/config.py
 
-    # Configure Security
-    # user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-
     # Configure Compressing
     Compress(app)
 
     # TO JSON from reordering
     app.config['JSON_SORT_KEYS'] = False
-    # app.config['JSON_ADD_STATUS'] = False
-    # app.config['JSON_DATETIME_FORMAT'] = '%d/%m/%Y %H:%M:%S'
 
     # Bind db to app
     db.init_app(app)

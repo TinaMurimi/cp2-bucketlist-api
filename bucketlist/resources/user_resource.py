@@ -1,10 +1,13 @@
+import json
 import re
 
-from flask import g, make_response, request
+from flask import g, request
 from flask_restful import (
     Resource,
     reqparse
 )
+from werkzeug.wrappers import Response
+
 
 from bucketlist.resources.authentication import (generate_auth_token,
                                                  verify_auth_token)
@@ -90,14 +93,91 @@ class AllRegisteredUsers(Resource):
         if user.admin is not True:
             return {'Error': 'Unauthorised access'}, 401
 
-        users = User.query.order_by(User.username).all()
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'q',
+            type=str,
+            location='args',
+            help='Search username'
+        )
+        self.reqparse.add_argument(
+            'page',
+            type=int,
+            location='args',
+            default=1,
+            help='Page to start'
+        )
+        self.reqparse.add_argument(
+            'limit',
+            type=int,
+            location='args',
+            default=20,
+            help='Results per page'
+        )
 
-        if not users:
-            return {'Warning': 'No users registered'}, 204
+        args = self.reqparse.parse_args()
+        _query = args['q']
+        _page = args['page']
+        _limit = args['limit']
 
-        response = users_schema.jsonify(users)
-        response.status_code = 200
-        return response
+        if _limit and _limit > 100:
+            return {'Error': 'Maximum number of results is 100'}, 400
+
+        if _query:
+            users = User.query.filter(User.admin.isnot(True),
+                                      User.username.contains(
+                                          '%' + _query + '%')
+                                      ).order_by(
+                User.username
+            ).paginate(_page, _limit, False)
+
+            if not users.items:
+                return {
+                    'Error': 'No users with the name/word {}'.format(_query)
+                }, 404
+
+        else:
+            users = User.query.filter(
+                User.admin.isnot(True)).order_by(
+                User.username
+            ).paginate(_page, _limit, False)
+
+            if not users:
+                return {'Warning': 'No users registered'}, 404
+
+        if users.has_prev:
+            prev_page = request.url_root + 'bucketlist_api/v1.0/users' \
+                + '?page=' + str(_page - 1) + '&limit=' + str(_limit)
+        else:
+            prev_page = 'None'
+
+        if users.has_next:
+            next_page = request.url_root + 'bucketlist_api/v1.0/users' \
+                + '?page=' + str(_page + 1) + '&limit=' + str(_limit)
+        else:
+            next_page = 'None'
+
+        result = users_schema.dump(list(users.items))
+        pages = {
+            'message': {
+                'prev_page': prev_page,
+                'next_page': next_page,
+                'total_pages': users.pages
+            },
+            'bucketlists': result.data
+        }
+
+        response = json.dumps(pages, sort_keys=False)
+
+        return Response(
+            response,
+            status=200,
+            mimetype='text/json'
+        )
+
+        # response = users_schema.jsonify(users)
+        # response.status_code = 200
+        # return response
 
 
 class SingleUserAPI(Resource):

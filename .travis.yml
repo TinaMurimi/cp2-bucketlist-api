@@ -1,7 +1,6 @@
 language: python
 
 python:
-  - "2.7"
   - "3.6"
 
 env:
@@ -26,7 +25,7 @@ services:
 # Create test databases
 before_script:
   - psql -c 'DROP DATABASE IF EXISTS bucketlist_test;' -U postgres
-  - psql -c 'CREATE DATABASE travis_ci_test;' -U postgres
+  - psql -c 'CREATE DATABASE bucketlist_test;' -U postgres
 
 # command to run tests
 script:

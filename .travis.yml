@@ -34,4 +34,4 @@ script:
   - pep8 bucketlist
 
   # Code coverage
-  - nosetests --with-coverage
+  - nosetests

@@ -9,7 +9,7 @@ env:
     - SECRET_KEY='nBvb80W09RNCVKJVCVBUIvbvb$hbv&$b_vbvksv'
     - SQLALCHEMY_DATABASE_URI='postgresql://postgres@localhost/bucketlist'
     - APP_SETTINGS="staging"
-    - DB=postgresql
+    - DB=postgres
     - TRAVIS_NODE_VERSION="4" 
   matrix:
     - USE_NETWORK=true

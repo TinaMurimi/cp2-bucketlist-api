@@ -90,7 +90,7 @@ class AllRegisteredUsers(Resource):
 
         user = db.session.query(User).get(g.current_user)
 
-        if user.admin is not True:
+        if not user.admin:
             return {'Error': 'Unauthorised access'}, 401
 
         self.reqparse = reqparse.RequestParser()
@@ -308,7 +308,7 @@ class SingleUserAPI(Resource):
         user = db.session.query(User).get(g.current_user)
 
         # Validate user to perform CRUD action on a user
-        if user.admin is not True:
+        if not user.admin:
             return {'Error': 'Unauthorised access'}, 401
 
         # Check if the user exists

@@ -297,7 +297,7 @@ class SingleBucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) is not int:
+        if not isinstance(g.current_user, int):
             return g.current_user
 
         # Validate user to perform CRUD action on a bucketlist
@@ -379,7 +379,7 @@ class SingleBucketlistAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) is not int:
+        if not isinstance(g.current_user, int):
             return g.current_user
 
         # Validate user to perform CRUD action on a bucketlist
@@ -418,7 +418,7 @@ def validate_access(self, bucketlist_id, bucketlistitem_id=None):
     _token = request.headers.get("Authorization")
     g.current_user = verify_auth_token(_token)
 
-    if type(g.current_user) is not int:
+    if not isinstance(g.current_user, int):
         return g.current_user
 
     # Validate user to perform CRUD action on a bucketlist

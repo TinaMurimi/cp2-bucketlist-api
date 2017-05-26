@@ -85,7 +85,7 @@ class AllRegisteredUsers(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) is not int:
+        if not isinstance(g.current_user, int):
             return g.current_user
 
         user = db.session.query(User).get(g.current_user)
@@ -210,7 +210,7 @@ class SingleUserAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) is not int:
+        if not isinstance(g.current_user, int):
             return g.current_user
 
         user = db.session.query(User).get(g.current_user)
@@ -237,7 +237,7 @@ class SingleUserAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) is not int:
+        if not isinstance(g.current_user, int):
             return g.current_user
 
         user = db.session.query(User).get(g.current_user)
@@ -302,7 +302,7 @@ class SingleUserAPI(Resource):
         _token = request.headers.get("Authorization")
         g.current_user = verify_auth_token(_token)
 
-        if type(g.current_user) is not int:
+        if not isinstance(g.current_user, int):
             return g.current_user
 
         user = db.session.query(User).get(g.current_user)

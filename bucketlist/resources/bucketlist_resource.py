@@ -34,8 +34,10 @@ class BucketlistAPI(Resource):
 
         Attributes:
         - list_name (required): A string representing the bucketlist's name
-        - description (optional): A string representing the bucketlist's description
-        - created_by (required): An foreign key from table User representing owner of bucketlist
+        - description (optional): A string representing the
+                                    bucketlist's description
+        - created_by (required): An foreign key from table User
+                                    representing owner of bucketlist
         """
 
         # Validate token
@@ -58,9 +60,12 @@ class BucketlistAPI(Resource):
             if not _bucketlist:
                 return {'Error': 'Bucketlist name is required'}, 400
 
-            if _bucketlist.isdigit() or len(_bucketlist) < 5 or len(_bucketlist) > 20:
+            if _bucketlist.isdigit() or \
+                    len(_bucketlist) < 5 \
+                    or len(_bucketlist) > 20:
+
                 return {
-                    'Error': 'Invalid bucketlist name or length (5-20 characters)'
+                    'Error': 'Invalid bucketlist name (5-20 characters)'
                 }, 400
 
             if bucketlists:
@@ -314,9 +319,11 @@ class SingleBucketlistAPI(Resource):
             if _bucketlist:
                 _bucketlist = _bucketlist.strip()
 
-                if _bucketlist.isdigit() or len(_bucketlist) < 5 or len(_bucketlist) > 20:
+                if _bucketlist.isdigit() or \
+                        len(_bucketlist) < 5 or \
+                        len(_bucketlist) > 20:
                     return {
-                        'Error': 'Invalid bucketlist name or length (5-20 characters)'
+                        'Error': 'Invalid bucketlist name (5-20 characters)'
                     }, 400
 
                 bucketlist = Bucketlist.query.filter(
@@ -459,9 +466,11 @@ class BucketlistItemAPI(Resource):
         Add a new bucketlist item
 
         Attributes:
-        - item_name (required): A string representing the bucketlist item's name
-        - description (optional): A string representing the bucketlist item's description
-        - list_id (required): A foreign key from table Bucketlist representing bucketlist id
+        - item_name (required): A string representing the bucketlist item name
+        - description (optional): A string representing the
+                                    bucketlist item's description
+        - list_id (required): A foreign key from table Bucketlist
+                                representing bucketlist id
         """
 
         # Validate user to perform CRUD action on a bucketlist
@@ -548,7 +557,7 @@ class SingleBucketlistItemAPI(Resource):
 
     def post(self, id, item_id):
         return {
-            'Error': 'Not allowed. Use /bucketlist_api/v1.0/bucketlists/<id>/items'
+            'Error': 'Use /bucketlist_api/v1.0/bucketlists/<id>/items'
         }, 405
 
     def get(self, id, item_id):
@@ -595,7 +604,7 @@ class SingleBucketlistItemAPI(Resource):
             _item = _item.strip()
             if _item.isdigit() or len(_item) < 5 or len(_item) > 20:
                 return {
-                    'Error': 'Invalid bucketlist name or length (5-20 characters)'
+                    'Error': 'Invalid bucketlist name (5-20 characters)'
                 }, 400
 
             item = Bucketlist_Item.query.filter(

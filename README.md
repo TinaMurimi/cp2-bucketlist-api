@@ -158,7 +158,6 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 
 * ..... and add the following
 
-
         web: gunicorn --workers 4 --bind "0.0.0.0:$PORT" flask_app:app --log-file -
 
 
@@ -169,6 +168,10 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 * ..... and add the following
 
         python-3.6.0 
+
+* Set up your local environment variables
+
+        heroku config:add APP_SETTINGS=<env> 
 
 * Now deploy your code:
 

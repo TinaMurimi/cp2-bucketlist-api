@@ -10,6 +10,7 @@ logfile
 .DS_Store
 
 db_repository/
+htmlcov/
 
 .coverage
 .coveragerc

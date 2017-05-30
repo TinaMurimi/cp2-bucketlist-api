@@ -28,8 +28,8 @@ from bucketlist.resources.bucketlist_resource import (
 
 
 def ConfigureApp(config_name):
-    if config_name is None:
-        config_name = ("staging")
+    # if config_name is None:
+    #     config_name = ("staging")
 
     # When instance_relative_config=True if we create our app with the Flask()
     # call app.config.from_pyfile() will load the specified file from the

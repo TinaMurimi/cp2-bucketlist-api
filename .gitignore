@@ -1,0 +1,17 @@
+Checkpoint2A-BucketListApplicationAPI.pdf
+
+migrations/
+configs/
+
+instance/
+*__pycache__/
+.vscode/
+logfile
+.DS_Store
+
+db_repository/
+htmlcov/
+
+.coverage
+.coveragerc
+.env

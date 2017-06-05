@@ -1,0 +1,36 @@
+language: python
+
+python:
+  - "3.6"
+
+env:
+  global:
+    - SECRET_KEY='nBvb80W09RNCVKJVCVBUIvbvb$hbv&$b_vbvksv'
+    - SQLALCHEMY_DATABASE_URI='postgresql://postgres@localhost/bucketlist'
+    - APP_SETTINGS="staging"
+    - DB=postgres
+    - TRAVIS_NODE_VERSION="4" 
+  matrix:
+    - USE_NETWORK=true
+    - USE_NETWORK=false
+
+# command to install dependencies
+install:
+  # Install requirements
+  "pip install -r requirements.txt"
+
+services:
+  - postgresql
+
+# Create test databases
+before_script:
+  - psql -c 'DROP DATABASE IF EXISTS bucketlist_test;' -U postgres
+  - psql -c 'CREATE DATABASE bucketlist_test;' -U postgres
+
+# command to run tests
+script:
+  # Formatting
+  - pep8 bucketlist
+
+  # Code coverage
+  - nosetests
